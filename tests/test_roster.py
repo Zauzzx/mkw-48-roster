@@ -75,7 +75,7 @@ class RosterTest(unittest.TestCase):
     def test_generated_table(self):
         self.add("shadow", name='Sha"dow', weight="medium", suffix="sh", stats_like="Mario")
         c = build.roster_table_c(self.resolve())
-        self.assertIn('[0x1E] = {"Sha\\"dow", "sh", 0x00, 1},', c)
+        self.assertIn('[0x1E] = {"Sha\\"dow", "sh", "cha_x_sh", 0x00, 1},', c)
         self.assertIn("const u32 rosterCount = 25;", c)
 
 

@@ -8,6 +8,7 @@
 struct RosterCharacter {
     const char *name;   // display name
     const char *suffix; // file suffix: st_kart-<suffix>.szs, <suffix>.brres
+    const char *iconPane; // picture pane in character_64x64_common.brlyt
     u8 statsFrom;       // character ID whose stats are copied
     u8 isCustom;
 };
