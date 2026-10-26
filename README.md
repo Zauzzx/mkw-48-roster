@@ -4,8 +4,8 @@ A Mario Kart Wii mod (Dolphin / Riivolution, USA RMCE01 first) that raises the
 roster to **48 characters** and lays the character select screen out as
 horizontal rows along the bottom, with the driver previews across the top.
 
-**Status: in development.** The roster tooling works; the game code patch is
-being reverse-engineered and is not playable yet.
+**Status: in development.** The loader and character-ID patches run in
+Dolphin; the 48-button select screen is written and being tested.
 
 ## How 48 works
 
@@ -27,8 +27,17 @@ room. Each extra ID has a fixed weight class, so the free slots are
    stats_like = "Mario"     # vanilla character to copy stats from
    # replaces = "Waluigi"   # optional: take over a vanilla slot instead
    ```
-2. Put its files in the folder (kart models, menu model, icon; see
-   `characters/_example/`).
+2. Put its files in the folder:
+   ```
+   characters/shadow/
+     character.toml
+     icon.png            64x64 select-screen icon
+     menu/model.brres    3D model shown on the select screen
+     kart/<kart>.szs     one per vehicle, named like the game's file without
+                         the character suffix (Race/Kart/st_kart-mr.szs -> st_kart.szs)
+   ```
+   Missing files are filled from `clone_from` if set, which is handy for a
+   placeholder while you work on the models.
 3. Run `python3 tools/roster.py` to check it and see where it landed.
 
 Button order is set by `order` in `roster.toml`; anything not listed is added

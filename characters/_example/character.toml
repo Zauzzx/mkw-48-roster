@@ -1,7 +1,8 @@
 # Template. Folders starting with "_" are ignored; copy this one to
-# characters/<name>/ to add a character.
+# characters/<name>/ to add a character, then add its files (see README).
 name = "Shadow"
 weight = "medium"      # small (7 free slots), medium (9) or large (8)
 suffix = "sh"          # file suffix: st_kart-sh.szs, sh.brres, tt_sh_64x64.tpl
 stats_like = "Mario"   # vanilla character whose stats to copy
 # replaces = "Waluigi" # optional: take over this vanilla slot instead of a free one
+# clone_from = "Mario" # optional: fill any missing file with this vanilla character's (placeholder)
