@@ -43,3 +43,10 @@ struct Hook {
 // Skipped (and logged) if the instruction doesn't hold `expected`.
 #define PATCH_IMM16(addr, expected, new) \
     HOOK_RECORD(HOOK_IMM16, addr, ((u32)(expected) << 16) | ((u32)(new) & 0xFFFF), NULL)
+
+// Write one instruction now (flushing caches), for patches that depend on data
+// only known at boot.
+void hook_write32(u32 addr, u32 value);
+
+// Runs once all hooks are in place; for patches computed from the roster.
+void roster_after_hooks(void);

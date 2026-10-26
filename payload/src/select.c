@@ -1,7 +1,7 @@
 // The character select screen with up to 48 buttons.
 //
 // CtrlMenuCharacterSelect::Load allocates the buttons and calls LoadButton
-// for each. We make Load create ROSTER_COUNT buttons, none of them Mii
+// for each. We make Load create rosterCount buttons, none of them Mii
 // buttons, and replace LoadButton so button i shows character
 // rosterButtonToId[i], placed by record "Button<i>" of our own
 // button/ctrl/CharacterSelect48.brctr (written by tools/pack_ui.py). Cursor
@@ -13,7 +13,6 @@
 #ifndef ROSTER_VANILLA_SELECT
 #include "addresses.h"
 #include "hooks.h"
-#include "roster_config.h"
 #include "roster_table.h"
 
 // CtrlMenuCharacterSelect fields
@@ -46,15 +45,13 @@ typedef bool (*IsCharacterUnlocked_t)(s32 id);
 
 #define CALL(type, name) ((type)ADDR_##name)
 
-// Load: "add r30, r0, r3" (button count) -> "li r30, ROSTER_COUNT".
-PATCH_WRITE32(ADDR_CharacterSelectLoad_ButtonCount, 0x3BC00000 | ROSTER_COUNT);
 // Load: isMii argument to LoadButton -> "li r5, 0".
 PATCH_WRITE32(ADDR_CharacterSelectLoad_IsMiiArg, 0x38A00000);
 
 static const char *const iconPanes[] = {"chara", "chara_shadow", "chara_light_01", "chara_light_02", "chara_c_down"};
 
 static bool buttonUnlocked(s32 i) {
-    return i < ROSTER_COUNT && CALL(IsCharacterUnlocked_t, IsCharacterUnlocked)(rosterButtonToId[i]);
+    return i < (s32)rosterCount && CALL(IsCharacterUnlocked_t, IsCharacterUnlocked)(rosterButtonToId[i]);
 }
 
 static void loadButton(u8 *self, s32 i, bool isMii) {
@@ -85,7 +82,7 @@ static void loadButton(u8 *self, s32 i, bool isMii) {
 
     // The cursor starts on the first available character.
     s32 first = 0;
-    while (first < ROSTER_COUNT - 1 && !buttonUnlocked(first))
+    while (first < (s32)rosterCount - 1 && !buttonUnlocked(first))
         first++;
     if (i != first)
         return;
@@ -108,4 +105,11 @@ static const char *iconPaneName(s32 id) {
         return rosterById[id].iconPane;
     return origIconPaneName(id);
 }
+
+void roster_after_hooks(void) {
+    // Load: "add r30, r0, r3" (button count) -> "li r30, rosterCount".
+    hook_write32(ADDR_CharacterSelectLoad_ButtonCount, 0x3BC00000 | rosterCount);
+}
+#else
+void roster_after_hooks(void) {}
 #endif

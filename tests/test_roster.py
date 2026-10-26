@@ -72,11 +72,16 @@ class RosterTest(unittest.TestCase):
         r = self.resolve(["shadow", "Luigi"])
         self.assertEqual([e.name for e in r[:3]], ["Shadow", "Luigi", "Mario"])
 
-    def test_generated_table(self):
-        self.add("shadow", name='Sha"dow', weight="medium", suffix="sh", stats_like="Mario")
-        c = build.roster_table_c(self.resolve())
-        self.assertIn('[0x1E] = {"Sha\\"dow", "sh", "cha_x_sh", 0x00, 1},', c)
-        self.assertIn("const u32 rosterCount = 25;", c)
+    def test_roster_bin(self):
+        import struct
+        self.add("shadow", name="Shadow", weight="medium", suffix="sh", stats_like="Mario")
+        data = build.roster_bin(self.resolve())
+        self.assertEqual(len(data), 1600)  # sizeof(struct RosterFile)
+        magic, count = struct.unpack_from(">II", data)
+        self.assertEqual((magic, count), (0x52343801, 25))
+        self.assertEqual(data[8 + 24], 0x1E)  # the 25th button is Shadow
+        suffix, icon, stats, custom = build.ENTRY.unpack_from(data, 8 + 48 + 0x1E * 32)
+        self.assertEqual((suffix.rstrip(b"\0"), icon.rstrip(b"\0"), stats, custom), (b"sh", b"cha_x_sh", 0, 1))
 
 
 if __name__ == "__main__":

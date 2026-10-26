@@ -12,6 +12,10 @@ loader_hook_original = 0x4E800020
 
 [functions]
 OSReport = 0x801A2530              # printf to the Dolphin log (OSREPORT)
+DVDConvertPathToEntrynum = 0x8015DEAC
+DVDFastOpen = 0x8015E1B4
+DVDReadPrio = 0x8015E794
+DVDClose = 0x8015E4C8
 GetKartArchivePostfix = 0x8053C48C # PAL 805419c8; reads a 48-entry table at 808AF240
 IsMiiId = 0x80523178               # PAL 805275ec; true for 0x18-0x2C
 IsCharacterUnlocked = 0x8080A274   # PAL 8081d020

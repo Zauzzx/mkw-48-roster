@@ -39,6 +39,18 @@ room. Each extra ID has a fixed weight class, so the free slots are
    Missing files are filled from `clone_from` if set, which is handy for a
    placeholder while you work on the models.
 3. Run `python3 tools/roster.py` to check it and see where it landed.
+4. Build (needs Python 3.11+, your extracted disc, and Wiimm's SZS tools):
+   ```
+   python3 tools/build.py
+   python3 tools/pack_ui.py --game <extracted>/DATA/files --out out
+   python3 tools/pack_assets.py --game <extracted>/DATA/files --out out
+   ```
+   Copy what's in `out/` into Dolphin's `Load/Riivolution` folder (or the
+   root of your SD card) and enable "48 Roster" in Riivolution.
+
+No compiler is needed to add characters: the game code patch is prebuilt in
+`prebuilt/` and reads the roster from `roster48.bin` at boot. Only changes to
+`payload/` need `tools/compile_payload.py` (clang with the PowerPC target).
 
 Button order is set by `order` in `roster.toml`; anything not listed is added
 at the end, so a new character always shows up.
@@ -49,7 +61,8 @@ at the end, so a new character always shows up.
 - `tools/ids.py`: the 48 IDs and their weight classes.
 - `tools/roster.py`: assigns IDs and button order, validates.
 - `tools/layout.py`: select-screen geometry (rows at the bottom, previews on top).
-- `payload/`: the C code patch, built with clang for PowerPC (no CodeWarrior).
+- `payload/`: the C code patch, built with clang for PowerPC (no CodeWarrior);
+  `prebuilt/` holds the compiled result.
 - `addresses/`: per-region game addresses found by reverse engineering.
 
 No Nintendo files are in this repository. You need your own disc.

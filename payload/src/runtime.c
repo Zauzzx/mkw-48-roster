@@ -1,5 +1,6 @@
 #include "addresses.h"
 #include "hooks.h"
+#include "roster_table.h"
 
 extern const struct Hook __hooks_start[];
 extern const struct Hook __hooks_end[];
@@ -26,7 +27,7 @@ static u32 relocate(u32 insn, u32 from, u32 to) {
     return insn;
 }
 
-static void write(u32 addr, u32 value) {
+void hook_write32(u32 addr, u32 value) {
     *(u32 *)addr = value;
     flush(addr);
 }
@@ -36,22 +37,23 @@ void roster_apply_hooks(void) {
     // Riivolution only loads the file image, so clear .bss ourselves.
     for (u8 *p = __bss_start; p < __bss_end; p++)
         *p = 0;
+    roster_load();
     for (const struct Hook *h = __hooks_start; h < __hooks_end; h++) {
         switch (h->kind) {
-        case HOOK_WRITE32: write(h->addr, h->value); break;
-        case HOOK_BRANCH: write(h->addr, branch(h->addr, h->value, false)); break;
-        case HOOK_CALL: write(h->addr, branch(h->addr, h->value, true)); break;
+        case HOOK_WRITE32: hook_write32(h->addr, h->value); break;
+        case HOOK_BRANCH: hook_write32(h->addr, branch(h->addr, h->value, false)); break;
+        case HOOK_CALL: hook_write32(h->addr, branch(h->addr, h->value, true)); break;
         case HOOK_REPLACE: {
             u32 t = (u32)h->trampoline;
-            write(t, relocate(*(u32 *)h->addr, h->addr, t));
-            write(t + 4, branch(t + 4, h->addr + 4, false));
-            write(h->addr, branch(h->addr, h->value, false));
+            hook_write32(t, relocate(*(u32 *)h->addr, h->addr, t));
+            hook_write32(t + 4, branch(t + 4, h->addr + 4, false));
+            hook_write32(h->addr, branch(h->addr, h->value, false));
             break;
         }
         case HOOK_IMM16: {
             u32 insn = *(u32 *)h->addr;
             if ((insn & 0xFFFF) == h->value >> 16)
-                write(h->addr, (insn & 0xFFFF0000) | (h->value & 0xFFFF));
+                hook_write32(h->addr, (insn & 0xFFFF0000) | (h->value & 0xFFFF));
             else
                 OSReport("[mkw-48-roster] skipped patch at %08x: found %08x\n", h->addr, insn);
             break;
@@ -59,4 +61,5 @@ void roster_apply_hooks(void) {
         }
     }
     OSReport("[mkw-48-roster] applied %d hooks\n", (int)(__hooks_end - __hooks_start));
+    roster_after_hooks();
 }
