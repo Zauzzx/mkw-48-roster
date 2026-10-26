@@ -6,6 +6,9 @@ extern const struct Hook __hooks_end[];
 extern u8 __bss_start[];
 extern u8 __bss_end[];
 
+typedef void (*OSReport_t)(const char *fmt, ...);
+#define OSReport ((OSReport_t)ADDR_OSReport)
+
 static void flush(u32 addr) {
     __asm__ volatile("dcbst 0, %0\n\tsync\n\ticbi 0, %0\n\tisync" ::"r"(addr) : "memory");
 }
@@ -47,4 +50,5 @@ void roster_apply_hooks(void) {
         }
         }
     }
+    OSReport("[mkw-48-roster] applied %d hooks\n", (int)(__hooks_end - __hooks_start));
 }

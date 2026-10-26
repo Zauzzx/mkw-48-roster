@@ -38,7 +38,7 @@ def c_string(s):
 def load_addresses(region, path=None):
     path = Path(path) if path else ROOT / "addresses" / f"{region}.toml"
     data = tomllib.loads(path.read_text())
-    missing = [f"{sec}.{k}" for sec in ("payload", "functions") for k, v in data[sec].items() if not v]
+    missing = [f"{sec}.{k}" for sec in ("payload", "functions") for k, v in data[sec].items() if v == 0]
     if missing:
         raise BuildError(f"{path.name}: addresses not found yet: {', '.join(missing)}")
     return data
@@ -155,6 +155,10 @@ def main(argv=None):
         out = Path(args.out)
         elf, binary = compile_payload(addr, entries, out / "build" / args.region)
         syms = symbols(elf)
+        limit = addr["payload"].get("max_size")
+        used = syms["__bss_end"] - addr["payload"]["load_address"]
+        if limit and used > limit:
+            raise BuildError(f"payload needs 0x{used:X} bytes but only 0x{limit:X} are reserved")
         code = out / MOD_ID / "code"
         code.mkdir(parents=True, exist_ok=True)
         shutil.copy2(binary, code / f"payload-{args.region}.bin")

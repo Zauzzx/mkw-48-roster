@@ -1,13 +1,28 @@
-# Game addresses for Mario Kart Wii USA (RMCE01). Filled in from reverse
-# engineering; each value is a runtime address (StaticR.rel already linked).
-# A value of 0 means "not found yet" and the build refuses to use it.
+# Game addresses for Mario Kart Wii USA (RMCE01), found by reverse engineering
+# (cross-checked against Pulsar's PAL symbols mapped through its versions.txt).
+# Each value is a runtime address, with StaticR.rel already linked.
 
 [payload]
-load_address = 0          # where the payload lives (reserved RAM)
-loader_hook = 0           # instruction replaced by "b roster_entry"; runs once after StaticR.rel is linked
+# The boot code area: 0x2460 bytes, unused once the game has started.
+load_address = 0x80004000
+max_size = 0x2460
+# Final blr of ModuleLinker::Link: runs once, right after StaticR.rel is linked.
+loader_hook = 0x8000A3B4
+loader_hook_original = 0x4E800020
 
 [functions]
-GetKartArchivePostfix = 0 # PAL 805419c8
-IsMiiId = 0               # PAL 805275ec
-IsCharacterUnlocked = 0   # PAL 8081d020
-GetDriverParamEntry = 0   # PAL 80591f60
+OSReport = 0x801A2530              # printf to the Dolphin log (OSREPORT)
+GetKartArchivePostfix = 0x8053C48C # PAL 805419c8; reads a 48-entry table at 808AF240
+IsMiiId = 0x80523178               # PAL 805275ec; true for 0x18-0x2C
+IsCharacterUnlocked = 0x8080A274   # PAL 8081d020
+GetDriverParamEntry = 0x8058B73C   # PAL 80591f60; 27 entries, Miis folded per weight
+GetDriverDispEntry = 0x8058BF9C    # PAL 805927c0; 48 entries
+
+[notes]
+# Select screen (CtrlMenuCharacterSelect), for the 48-button work:
+# Load 807DC518, GetUnlockedStatus 807DC80C, LoadButton 807DC898,
+# GetButtonDriver 807DD520, OnButtonClick 807DD56C, OnMiiButtonClick 807DD7F0,
+# GetUnlockedCharacterCountByWeight 807DDB5C, GetCorrectButtonDriverId 807DDC1C,
+# InitSelf 807DCC88, buttonIdToCharacterId[24] 808A3108.
+# Menu preview: MenuModelBRRESHandle::BindDriverBRRES swaps Peach/Daisy/Rosalina
+# to 0x2D/0x2E/0x2F (pc_menu, ds_menu, rs_menu) at 8084B164-8084B18C.
