@@ -1,2 +1,4 @@
-Prebuilt test builds of the mod. Copy riivolution/ and mkw-48-roster/ into Dolphin's Load/Riivolution folder.
-Source: main branch.
+Prebuilt test builds of the mod (from main).
+
+- riivolution/, mkw-48-roster/: normal build.
+- debug/: --debug-boot build that boots straight into the character select screen.
