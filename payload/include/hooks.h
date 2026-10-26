@@ -10,6 +10,7 @@ enum HookKind {
     HOOK_BRANCH = 2,  // addr: b value
     HOOK_CALL = 3,    // addr: bl value
     HOOK_REPLACE = 4, // like HOOK_BRANCH, and fill a trampoline that calls the original
+    HOOK_IMM16 = 5,   // change an instruction's 16-bit immediate: value = expected << 16 | new
 };
 
 struct Hook {
@@ -38,3 +39,7 @@ struct Hook {
 #define PATCH_BRANCH(addr, fn) HOOK_RECORD(HOOK_BRANCH, addr, fn, NULL)
 #define PATCH_CALL(addr, fn) HOOK_RECORD(HOOK_CALL, addr, fn, NULL)
 #define PATCH_WRITE32(addr, value) HOOK_RECORD(HOOK_WRITE32, addr, value, NULL)
+// Change the immediate of e.g. `li rX, expected` to `new`, keeping the register.
+// Skipped (and logged) if the instruction doesn't hold `expected`.
+#define PATCH_IMM16(addr, expected, new) \
+    HOOK_RECORD(HOOK_IMM16, addr, ((u32)(expected) << 16) | ((u32)(new) & 0xFFFF), NULL)

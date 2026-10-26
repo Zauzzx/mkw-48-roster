@@ -10,11 +10,31 @@ static bool validId(s32 id) {
     return id >= 0 && id < ROSTER_MAX;
 }
 
-// ArchiveMgr::GetKartArchivePostfix(CharacterId): the "mr" in st_kart-mr.szs.
+// Menu-preview models. The menu swaps Peach, Daisy and Rosalina to dedicated
+// models before looking up the file name; vanilla uses IDs 0x2D-0x2F for
+// those, which are now roster slots, so the swap is moved to IDs past the end.
+#define MENU_PEACH 0x30
+#define MENU_DAISY 0x31
+#define MENU_ROSALINA 0x32
+PATCH_IMM16(ADDR_BindDriverBRRES_PeachSwap, 0x2D, MENU_PEACH);
+PATCH_IMM16(ADDR_BindDriverBRRES_DaisySwap, 0x2E, MENU_DAISY);
+PATCH_IMM16(ADDR_BindDriverBRRES_RosalinaSwap, 0x2F, MENU_ROSALINA);
+
+// ArchiveMgr::GetKartArchivePostfix(CharacterId): the "mr" in st_kart-mr.szs,
+// also used for menu models (<postfix>.brres in Driver.szs).
+typedef const char *(*GetKartArchivePostfix_t)(s32 id);
+static const char *kartArchivePostfix(s32 id);
+REPLACE_FUNCTION_ORIG(ADDR_GetKartArchivePostfix, kartArchivePostfix, GetKartArchivePostfix_t, origKartArchivePostfix);
 static const char *kartArchivePostfix(s32 id) {
-    return validId(id) ? rosterById[id].suffix : rosterById[0].suffix;
+    switch (id) {
+    case MENU_PEACH: return origKartArchivePostfix(0x2D);
+    case MENU_DAISY: return origKartArchivePostfix(0x2E);
+    case MENU_ROSALINA: return origKartArchivePostfix(0x2F);
+    }
+    if (validId(id) && rosterById[id].isCustom)
+        return rosterById[id].suffix;
+    return origKartArchivePostfix(id);
 }
-REPLACE_FUNCTION(ADDR_GetKartArchivePostfix, kartArchivePostfix);
 
 // Mii::IsMiiId(CharacterId): no ID is a Mii any more.
 static bool isMiiId(s32 id) {

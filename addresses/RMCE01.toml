@@ -17,6 +17,10 @@ IsMiiId = 0x80523178               # PAL 805275ec; true for 0x18-0x2C
 IsCharacterUnlocked = 0x8080A274   # PAL 8081d020
 GetDriverParamEntry = 0x8058B73C   # PAL 80591f60; 27 entries, Miis folded per weight
 GetDriverDispEntry = 0x8058BF9C    # PAL 805927c0; 48 entries
+# MenuModelBRRESHandle::BindDriverBRRES (8084B138): the `li` loading 0x2D/0x2E/0x2F
+BindDriverBRRES_PeachSwap = 0x8084B17C
+BindDriverBRRES_DaisySwap = 0x8084B184
+BindDriverBRRES_RosalinaSwap = 0x8084B18C
 
 # Used by --debug-boot test builds only.
 BootSectionCall = 0x8060406C                  # PAL 80634f20: call that picks the boot section

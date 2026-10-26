@@ -48,6 +48,14 @@ void roster_apply_hooks(void) {
             write(h->addr, branch(h->addr, h->value, false));
             break;
         }
+        case HOOK_IMM16: {
+            u32 insn = *(u32 *)h->addr;
+            if ((insn & 0xFFFF) == h->value >> 16)
+                write(h->addr, (insn & 0xFFFF0000) | (h->value & 0xFFFF));
+            else
+                OSReport("[mkw-48-roster] skipped patch at %08x: found %08x\n", h->addr, insn);
+            break;
+        }
         }
     }
     OSReport("[mkw-48-roster] applied %d hooks\n", (int)(__hooks_end - __hooks_start));
