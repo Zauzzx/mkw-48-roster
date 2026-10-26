@@ -1,0 +1,13 @@
+# Game addresses for Mario Kart Wii USA (RMCE01). Filled in from reverse
+# engineering; each value is a runtime address (StaticR.rel already linked).
+# A value of 0 means "not found yet" and the build refuses to use it.
+
+[payload]
+load_address = 0          # where the payload lives (reserved RAM)
+loader_hook = 0           # instruction replaced by "b roster_entry"; runs once after StaticR.rel is linked
+
+[functions]
+GetKartArchivePostfix = 0 # PAL 805419c8
+IsMiiId = 0               # PAL 805275ec
+IsCharacterUnlocked = 0   # PAL 8081d020
+GetDriverParamEntry = 0   # PAL 80591f60

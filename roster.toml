@@ -1,0 +1,5 @@
+# Button order on the select screen, left to right, top row first.
+# Use folder names (for custom characters) or vanilla names. Characters not
+# listed here are added at the end, so leaving this empty keeps the vanilla
+# order followed by custom characters.
+order = []
