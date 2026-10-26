@@ -9,9 +9,10 @@ being reverse-engineered and is not playable yet.
 
 ## How 48 works
 
-The game already has 48 internal character IDs: the 24 drivers plus 24 Mii
-outfit and biker-outfit IDs that never get their own button. Its tables
-(stats, display params, file names) are sized for all 48. This mod turns
+The game already has 48 internal character IDs: the 24 drivers, 21 Mii IDs, and
+3 menu-preview IDs for Peach, Daisy and Rosalina. None of those 24 extra
+IDs gets its own button. Its file-name and display tables are sized for all 48; stats are copied
+from a vanilla character (`stats_like`). This mod turns
 those 24 hidden IDs into real roster slots. The Mii button is removed to make
 room. Each extra ID has a fixed weight class, so the free slots are
 **7 small, 9 medium, 8 large**.

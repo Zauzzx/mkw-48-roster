@@ -1,8 +1,10 @@
 """The game's 48 character IDs and what each one is used for in the vanilla game.
 
-IDs 0x00-0x17 are the 24 regular drivers. IDs 0x18-0x2F are Mii outfits and
-the Peach/Daisy/Rosalina biker outfits; this mod turns them into 24 more
-roster slots. The weight class is fixed per ID, because the game picks the
+IDs 0x00-0x17 are the 24 regular drivers. IDs 0x18-0x2C are Mii outfits and
+0x2D-0x2F are the menu-preview models of Peach, Daisy and Rosalina (the menu
+swaps to them in MenuModelBRRESHandle::BindDriverBRRES). This mod turns all 24
+into more roster slots, and gives the payload its own menu-model lookup so
+those three still preview correctly. The weight class is fixed per ID, because the game picks the
 vehicle set (small/medium/large) from it.
 """
 
@@ -53,9 +55,9 @@ IDS = [
     (0x2A, "Mii medium", "medium", None),
     (0x2B, "Mii small", "small", None),
     (0x2C, "Mii large", "large", None),
-    (0x2D, "Peach biker outfit", "medium", None),
-    (0x2E, "Daisy biker outfit", "medium", None),
-    (0x2F, "Rosalina biker outfit", "large", None),
+    (0x2D, "Peach menu-preview model (pc_menu)", "medium", None),
+    (0x2E, "Daisy menu-preview model (ds_menu)", "medium", None),
+    (0x2F, "Rosalina menu-preview model (rs_menu)", "large", None),
 ]
 
 MAX_CHARACTERS = len(IDS)  # 48
