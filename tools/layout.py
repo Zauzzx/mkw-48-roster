@@ -1,0 +1,54 @@
+"""Select-screen geometry: the roster as horizontal rows along the bottom of the
+screen, and the driver preview models in a row across the top.
+
+Coordinates are the game's layout units: the origin is the screen centre and
+the 4:3 screen is 608 x 456 (the 16:9 one is 832 x 456).
+"""
+
+from dataclasses import dataclass
+
+SCREEN_H = 456
+SCREEN_W = {"4:3": 608, "16:9": 832}
+BUTTON_W, BUTTON_H = 92, 45  # vanilla w006_chara button
+
+# The roster area: the bottom part of the screen, leaving a margin for the
+# back button and the page's title bar.
+ROSTER_TOP = -20
+ROSTER_BOTTOM = -205
+SIDE_MARGIN = 16
+
+
+@dataclass
+class Placement:
+    x: float
+    y: float
+    scale: float
+
+
+def grid(count, columns=12, aspect="4:3"):
+    """Button placements for `count` buttons, filled left to right, top row first."""
+    if count < 1:
+        return []
+    rows = -(-count // columns)
+    usable_w = SCREEN_W[aspect] - 2 * SIDE_MARGIN
+    usable_h = ROSTER_TOP - ROSTER_BOTTOM
+    cell_w, cell_h = usable_w / columns, usable_h / rows
+    scale = min(cell_w / BUTTON_W, cell_h / BUTTON_H, 1.0)
+    out = []
+    for i in range(count):
+        row, col = divmod(i, columns)
+        in_row = min(columns, count - row * columns)
+        # Centre a short last row instead of leaving it left-aligned.
+        x0 = -(in_row - 1) * cell_w / 2
+        out.append(Placement(round(x0 + col * cell_w, 2), round(ROSTER_TOP - cell_h * (row + 0.5), 2), round(scale, 3)))
+    return out
+
+
+def preview_row(players, aspect="4:3"):
+    """Driver preview placements across the top half: one per local player."""
+    w = SCREEN_W[aspect]
+    top, bottom = SCREEN_H / 2 - 40, ROSTER_TOP
+    cell = w / players
+    scale = min(cell / 256, (top - bottom) / 256, 1.0)
+    y = (top + bottom) / 2
+    return [Placement(round(-w / 2 + cell * (i + 0.5), 2), round(y, 2), round(scale, 3)) for i in range(players)]
