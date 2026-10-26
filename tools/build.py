@@ -88,7 +88,7 @@ def tool(name):
     raise BuildError(f"{name} not found; install LLVM (clang, lld)")
 
 
-def compile_payload(addr, entries, build_dir):
+def compile_payload(addr, entries, build_dir, defines=()):
     gen = build_dir / "gen"
     obj = build_dir / "obj"
     gen.mkdir(parents=True, exist_ok=True)
@@ -99,7 +99,7 @@ def compile_payload(addr, entries, build_dir):
     objects = []
     for src in sources:
         o = obj / (src.name + ".o")
-        run([tool("clang"), *CFLAGS, "-I", PAYLOAD / "include", "-I", gen, "-c", src, "-o", o])
+        run([tool("clang"), *CFLAGS, *(f"-D{d}" for d in defines), "-I", PAYLOAD / "include", "-I", gen, "-c", src, "-o", o])
         objects.append(o)
     elf = build_dir / "payload.elf"
     run([tool("ld.lld"), "-T", PAYLOAD / "payload.ld", f"--defsym=PAYLOAD_ADDR=0x{addr['payload']['load_address']:08X}",
@@ -146,6 +146,7 @@ def main(argv=None):
     ap.add_argument("--region", default="RMCE01")
     ap.add_argument("--addresses", help="use this address file instead of addresses/<region>.toml")
     ap.add_argument("--out", default=str(ROOT / "out"))
+    ap.add_argument("--debug-boot", action="store_true", help="test build: boot straight into character select")
     args = ap.parse_args(argv)
     try:
         entries = roster_mod.resolve(roster_mod.load_characters(), roster_mod.load_order())
@@ -153,7 +154,8 @@ def main(argv=None):
         if "loader_hook_original" not in addr["payload"]:
             raise BuildError("address file needs payload.loader_hook_original (the instruction the loader hook overwrites)")
         out = Path(args.out)
-        elf, binary = compile_payload(addr, entries, out / "build" / args.region)
+        elf, binary = compile_payload(addr, entries, out / "build" / args.region,
+                                      ["ROSTER_DEBUG_BOOT"] if args.debug_boot else [])
         syms = symbols(elf)
         limit = addr["payload"].get("max_size")
         used = syms["__bss_end"] - addr["payload"]["load_address"]

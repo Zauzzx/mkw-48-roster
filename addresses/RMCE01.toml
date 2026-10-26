@@ -18,6 +18,11 @@ IsCharacterUnlocked = 0x8080A274   # PAL 8081d020
 GetDriverParamEntry = 0x8058B73C   # PAL 80591f60; 27 entries, Miis folded per weight
 GetDriverDispEntry = 0x8058BF9C    # PAL 805927c0; 48 entries
 
+# Used by --debug-boot test builds only.
+BootSectionCall = 0x8060406C                  # PAL 80634f20: call that picks the boot section
+NdevArgsExtractor_ExtractAllArgs = 0x8061F838 # PAL 805b9344 (mapped, unverified)
+SystemManager_sInstance = 0x80381C80          # PAL 80386000 (mapped, unverified)
+
 [notes]
 # Select screen (CtrlMenuCharacterSelect), for the 48-button work:
 # Load 807DC518, GetUnlockedStatus 807DC80C, LoadButton 807DC898,
