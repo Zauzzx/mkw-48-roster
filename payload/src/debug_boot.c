@@ -18,4 +18,7 @@ static s32 bootIntoCharacterSelect(const void *extractor) {
     return ((ExtractAllArgs_t)ADDR_NdevArgsExtractor_ExtractAllArgs)(extractor);
 }
 PATCH_CALL(ADDR_BootSectionCall, bootIntoCharacterSelect);
+// SectionMgr::Init only takes the ndev section if nothing else (the save
+// requester) picked one; skip that check so the debug boot always wins.
+PATCH_WRITE32(ADDR_BootSectionUseNdevCheck, 0x60000000); // bne -> nop
 #endif

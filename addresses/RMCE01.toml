@@ -44,6 +44,7 @@ GetCharacterNameBmg = 0x8081B874               # 9000 + id for non-Mii IDs
 
 # Used by --debug-boot test builds only.
 BootSectionCall = 0x8060406C                  # PAL 80634f20: call that picks the boot section
+BootSectionUseNdevCheck = 0x80604078          # bne (40820008) that skips the ndev section if one is already set
 NdevArgsExtractor_ExtractAllArgs = 0x8061F838 # PAL 805b9344 (mapped, unverified)
 SystemManager_sInstance = 0x80381C80          # PAL 80386000 (mapped, unverified)
 
