@@ -1,0 +1,17 @@
+<wiidisc version="1">
+	<id game="RMCE" />
+	<options>
+		<section name="48 Roster">
+			<option name="48 Roster">
+				<choice name="Enabled"><patch id="roster48" /></choice>
+			</option>
+		</section>
+	</options>
+	<patch id="roster48">
+		<memory offset="0x80004000" valuefile="/mkw-48-roster/code/payload-RMCE01.bin" />
+		<memory offset="0x8000404C" value="4E800020" />
+		<memory offset="0x80004050" value="48006368" />
+		<memory offset="0x8000A3B4" value="4BFF9C4C" original="4E800020" />
+		<folder external="/mkw-48-roster/files" disc="/" create="true" recursive="true" />
+	</patch>
+</wiidisc>
