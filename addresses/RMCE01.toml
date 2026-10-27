@@ -17,6 +17,7 @@ DVDFastOpen = 0x8015E1B4
 DVDReadPrio = 0x8015E794
 DVDClose = 0x8015E4C8
 GetKartArchivePostfix = 0x8053C48C # PAL 805419c8; reads a 48-entry table at 808AF240
+KartArchivePostfixTable = 0x808AF240  # const char *[48]; also read inline by the kart archive loaders
 IsMiiId = 0x80523178               # PAL 805275ec; true for 0x18-0x2C
 # Inline copies of the Mii range check: the `li rX, 1` taken for a Mii id.
 MenuVoice_IsMii1 = 0x80863F30      # in 80863EF0 (called by CharacterSelect OnButtonClick)
