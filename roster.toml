@@ -3,3 +3,8 @@
 # listed here are added at the end, so leaving this empty keeps the vanilla
 # order followed by custom characters.
 order = []
+
+# Play as if your save were 100% complete: every character, kart, cup and
+# engine class unlocked. The unlocks are not written into your save file. Set to false to
+# keep the game's normal unlock rules.
+unlock_all = true

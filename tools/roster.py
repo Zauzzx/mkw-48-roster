@@ -157,10 +157,14 @@ def _vanilla_order(cid):
     return order.index(cid)
 
 
-def load_order():
+def load_settings():
     if not ROSTER_FILE.exists():
-        return None
-    return tomllib.loads(ROSTER_FILE.read_text(encoding="utf-8")).get("order")
+        return {}
+    return tomllib.loads(ROSTER_FILE.read_text(encoding="utf-8"))
+
+
+def load_order():
+    return load_settings().get("order")
 
 
 def main(argv=None):

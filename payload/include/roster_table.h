@@ -22,13 +22,18 @@ struct RosterFile {
     u32 count;                  // buttons on the select screen
     u8 order[ROSTER_MAX];       // button index -> character ID
     struct RosterCharacter byId[ROSTER_MAX];
-    u8 pad[8];                  // to a multiple of 32 bytes, for DVD reads
+    u8 flags;                   // ROSTER_FLAG_*
+    u8 pad[7];                  // to a multiple of 32 bytes, for DVD reads
 };
+
+// roster.toml `unlock_all`: play as if the save were 100% complete.
+#define ROSTER_FLAG_UNLOCK_ALL 0x01
 
 extern struct RosterFile roster;
 #define rosterCount (roster.count)
 #define rosterButtonToId (roster.order)
 #define rosterById (roster.byId)
+#define rosterUnlockAll (roster.flags & ROSTER_FLAG_UNLOCK_ALL)
 
 // Load /roster48.bin; falls back to the vanilla 24 if it's missing or invalid.
 void roster_load(void);

@@ -57,12 +57,12 @@ PATCH_IMM16(ADDR_Race2DMapCharacter_InitSelf_MiiCheck, 0x18, 0x30);
 PATCH_IMM16(ADDR_Race2DMapCharacter_CalcPos_MiiCheck, 0x18, 0x30);
 
 // Pages::IsCharacterUnlocked(CharacterId): custom characters are always
-// available; vanilla ones keep the game's unlock rules.
+// available; vanilla ones keep the game's unlock rules unless unlock_all is on.
 typedef bool (*IsCharacterUnlocked_t)(s32 id);
 static bool isCharacterUnlocked(s32 id);
 REPLACE_FUNCTION_ORIG(ADDR_IsCharacterUnlocked, isCharacterUnlocked, IsCharacterUnlocked_t, origIsCharacterUnlocked);
 static bool isCharacterUnlocked(s32 id) {
-    if (validId(id) && rosterById[id].isCustom)
+    if (rosterUnlockAll || (validId(id) && rosterById[id].isCustom))
         return true;
     return origIsCharacterUnlocked(id);
 }
