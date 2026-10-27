@@ -14,7 +14,9 @@ from its folder characters/<name>/ go where the game looks for them:
                          ma_kart_2.szs, allkart.szs, allkart_BT.szs.
   menu/model.brres       <s>.brres inside Scene/Model/Driver.szs (the menu preview).
   icon.png               64x64 icon: texture tt_<s>_64x64.tpl plus a picture pane
-                         "cha_x_<s>" in character_64x64_common.brlyt, in every UI
+                         "cha_x_<s>" in character_64x64_common.brlyt, and the same
+                         icon as tt_<s>_32x32.tpl / "cha_x_<s>" in the race minimap's
+                         character_map_icon_common.brlyt, in every UI
                          archive that has that layout.
   name (character.toml)  BMG message 0x2328+id in every Common.bmg that holds the
                          vanilla driver names (one per language archive).
@@ -48,7 +50,9 @@ ROOT = Path(__file__).resolve().parent.parent
 REFERENCE = {"small": "ko", "medium": "mr", "large": "kp"}
 # vanilla menu-preview models that differ from the race postfix
 MENU_MODEL = {"pc": "pc_menu", "ds": "ds_menu", "rs": "rs_menu"}
-ICON_LAYOUT = "character_64x64_common.brlyt"
+# icon layouts -> texture size in the name; the game looks a character's icon
+# pane up by the same name (GetCharacterIconPaneName) in each of them
+ICON_LAYOUTS = {"character_64x64_common.brlyt": "64x64", "character_map_icon_common.brlyt": "32x32"}
 NAME_BMG_BASE = 0x2328
 PIC_MAT_OFF = 0x5C  # pic1 section: 8 header + 0x44 pane + 0x10 vertex colours, then u16 material
 # vanilla icon pane per character ID (from the game's icon pane table)
@@ -285,7 +289,7 @@ def pack_icons(tools, game, out, chars, missing, work):
             continue  # language archives hold only messages
         rel = f"Scene/UI/{archive.name}"
         d = start_archive(tools, game, out, rel, work)
-        layouts = list(d.glob(f"*/blyt/{ICON_LAYOUT}"))
+        layouts = [lay for name in ICON_LAYOUTS for lay in d.glob(f"*/blyt/{name}")]
         if not layouts:
             continue
         for lay in layouts:
@@ -293,7 +297,8 @@ def pack_icons(tools, game, out, chars, missing, work):
             timg = lay.parent.parent / "timg"
             for ch in chars:
                 s = ch["suffix"]
-                tex = f"tt_{s}_64x64.tpl"
+                # a picture pane scales its texture, so icon.png serves both sizes
+                tex = f"tt_{s}_{ICON_LAYOUTS[lay.name]}.tpl"
                 png = Path(ch["folder"]) / "icon.png"
                 if png.exists():
                     tools.run("wimgt", "encode", "-q", "-o", png, "-x", "TPL.RGB5A3", "-d", timg / tex)
