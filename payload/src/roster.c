@@ -42,6 +42,15 @@ static bool isMiiId(s32 id) {
     return false;
 }
 REPLACE_FUNCTION(ADDR_IsMiiId, isMiiId);
+// Code that checks the Mii range (id - 0x18 <= 0x11 or 0x14) inline: make it
+// answer "not a Mii" too. The menu voice code otherwise plays a Mii voice for
+// a custom character on an object only set up when a Mii is chosen, and jumps
+// to address 0 (seen in Dolphin: A on Test Mario, id 0x1E).
+PATCH_IMM16(ADDR_MenuVoice_IsMii1, 1, 0);
+PATCH_IMM16(ADDR_MenuVoice_IsMii2, 1, 0);
+PATCH_IMM16(ADDR_MenuVoice_IsMii3, 1, 0);
+PATCH_IMM16(ADDR_MenuVoice_IsMii4, 1, 0);
+PATCH_IMM16(ADDR_AnyPlayerIsMii, 1, 0);
 
 // Pages::IsCharacterUnlocked(CharacterId): custom characters are always
 // available; vanilla ones keep the game's unlock rules.

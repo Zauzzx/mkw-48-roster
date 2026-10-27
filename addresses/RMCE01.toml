@@ -18,6 +18,12 @@ DVDReadPrio = 0x8015E794
 DVDClose = 0x8015E4C8
 GetKartArchivePostfix = 0x8053C48C # PAL 805419c8; reads a 48-entry table at 808AF240
 IsMiiId = 0x80523178               # PAL 805275ec; true for 0x18-0x2C
+# Inline copies of the Mii range check: the `li rX, 1` taken for a Mii id.
+MenuVoice_IsMii1 = 0x80863F30      # in 80863EF0 (called by CharacterSelect OnButtonClick)
+MenuVoice_IsMii2 = 0x80863F90      # in 80863F58
+MenuVoice_IsMii3 = 0x80864014      # in 80863FB8
+MenuVoice_IsMii4 = 0x80864D30      # 80864D20: bool (id - 0x18 <= 0x11)
+AnyPlayerIsMii = 0x805243E4        # loop over players, id - 0x18 <= 0x14
 IsCharacterUnlocked = 0x8080A274   # PAL 8081d020
 GetDriverParamEntry = 0x8058B73C   # PAL 80591f60; 27 entries, Miis folded per weight
 GetDriverDispEntry = 0x8058BF9C    # PAL 805927c0; 48 entries
