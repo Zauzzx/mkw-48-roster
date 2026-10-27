@@ -16,8 +16,8 @@ BUTTON_W, BUTTON_H = 92, 45  # vanilla w006_chara button
 
 # The roster area: the bottom part of the screen, leaving a margin for the
 # back button and the page's title bar.
-ROSTER_TOP = -20
-ROSTER_BOTTOM = -205
+ROSTER_TOP = 10
+ROSTER_BOTTOM = -165  # above the bottom bar (back button, help text), which covers ~-170 and below
 SIDE_MARGIN = 16
 
 
