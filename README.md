@@ -90,7 +90,7 @@ Don't enable another character or menu mod (such as Retro Rewind) at the same
 time. To update after adding a character, build again and repeat step 3.
 
 On a real Wii, copy the same two folders to the root of your SD card and
-launch the game from the Riivolution app.
+launch the game from the Riivolution app (not tested on real hardware yet).
 
 ## Settings in `roster.toml`
 
