@@ -28,12 +28,18 @@ struct RosterFile {
 
 // roster.toml `unlock_all`: play as if the save were 100% complete.
 #define ROSTER_FLAG_UNLOCK_ALL 0x01
+// roster.toml `miis`: keep the Mii button. Miis keep the outfit-A IDs (0x18/0x19
+// small, 0x1E/0x1F medium, 0x24/0x25 large, male/female), which the roster
+// then never hands out; bit n of ROSTER_MII_MASK is ID 0x18 + n.
+#define ROSTER_FLAG_MIIS 0x20
+#define ROSTER_MII_MASK 0x30C3
 
 extern struct RosterFile roster;
 #define rosterCount (roster.count)
 #define rosterButtonToId (roster.order)
 #define rosterById (roster.byId)
 #define rosterUnlockAll (roster.flags & ROSTER_FLAG_UNLOCK_ALL)
+#define rosterMiis (roster.flags & ROSTER_FLAG_MIIS)
 
 // Load /roster48.bin; falls back to the vanilla 24 if it's missing or invalid.
 void roster_load(void);

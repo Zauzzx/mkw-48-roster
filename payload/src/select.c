@@ -1,8 +1,8 @@
 // The character select screen with up to 48 buttons.
 //
 // CtrlMenuCharacterSelect::Load allocates the buttons and calls LoadButton
-// for each. We make Load create rosterCount buttons, none of them Mii
-// buttons, and replace LoadButton so button i shows character
+// for each. We make Load create rosterCount buttons (plus one Mii button with
+// roster.toml `miis`), and replace LoadButton so button i shows character
 // rosterButtonToId[i], placed by record "Button<i>" of our own
 // button/ctrl/CharacterSelect48.brctr (written by tools/pack_ui.py). Cursor
 // movement follows the buttons' screen positions, so rows need no extra code.
@@ -21,6 +21,9 @@
 #define CTRL_ON_CLICK 0x1B8   // handler objects for driver (non-Mii) buttons
 #define CTRL_ON_SELECT 0x1CC
 #define CTRL_ON_DESELECT 0x1E0
+#define CTRL_ON_MII_CLICK 0x1F4 // the same for the Mii button
+#define MII_BUTTON_ID 0x1E      // vanilla Mii A button: medium male outfit A, swapped for the Mii's own
+#define MII_UNLOCK_ID 0x18
 // ButtonDriver fields
 #define BUTTON_SIZE 0x260
 #define BUTTON_CHARACTER 0x240
@@ -54,8 +57,9 @@ static bool buttonUnlocked(s32 i) {
     return i < (s32)rosterCount && CALL(IsCharacterUnlocked_t, IsCharacterUnlocked)(rosterButtonToId[i]);
 }
 
+// With roster.toml `miis`, one more button after the roster: the Mii button.
 static void loadButton(u8 *self, s32 i, bool isMii) {
-    (void)isMii;
+    isMii = rosterMiis && i == (s32)rosterCount;
     u8 players = CALL(GetLocalPlayerCount_t, GetLocalPlayerCount)();
     u8 *button = *(u8 **)(self + CTRL_BUTTONS) + i * BUTTON_SIZE;
 
@@ -63,19 +67,20 @@ static void loadButton(u8 *self, s32 i, bool isMii) {
     CALL(snprintf_t, snprintf)(variant, sizeof(variant), "Button%d", i);
     CALL(PushButtonLoad_t, PushButton_Load)(button, "button", "CharacterSelect48", variant, 0x1F, true, false);
 
-    bool unlocked = buttonUnlocked(i);
-    s32 id = unlocked ? rosterButtonToId[i] : -1;
+    bool unlocked = isMii ? CALL(IsCharacterUnlocked_t, IsCharacterUnlocked)(MII_UNLOCK_ID) : buttonUnlocked(i);
+    s32 id = unlocked ? (isMii ? MII_BUTTON_ID : rosterButtonToId[i]) : -1;
     *(s32 *)(button + BUTTON_CHARACTER) = id;
-    *(u8 *)(button + BUTTON_IS_MII) = 0;
+    *(u8 *)(button + BUTTON_IS_MII) = isMii;
     CALL(SetPaneVisibility_t, LayoutUIControl_SetPaneVisibility)(button, "ok_null", false);
 
     const char *icon = unlocked ? CALL(GetCharacterIconPaneName_t, GetCharacterIconPaneName)(id) : NULL;
     for (u32 p = 0; p < sizeof(iconPanes) / sizeof(iconPanes[0]); p++)
         CALL(SetPicturePane_t, LayoutUIControl_SetPicturePane)(button, iconPanes[p], icon ? icon : "cha_26_hatena");
     if (icon) {
-        CALL(SetHandler3_t, PushButton_SetOnClickHandler)(button, self + CTRL_ON_CLICK, 0);
-        CALL(SetHandler2_t, PushButton_SetOnSelectHandler)(button, self + CTRL_ON_SELECT);
-        CALL(SetHandler2_t, PushButton_SetOnDeSelectHandler)(button, self + CTRL_ON_DESELECT);
+        u8 *handlers = self + (isMii ? CTRL_ON_MII_CLICK : CTRL_ON_CLICK);
+        CALL(SetHandler3_t, PushButton_SetOnClickHandler)(button, handlers, 0);
+        CALL(SetHandler2_t, PushButton_SetOnSelectHandler)(button, handlers + (CTRL_ON_SELECT - CTRL_ON_CLICK));
+        CALL(SetHandler2_t, PushButton_SetOnDeSelectHandler)(button, handlers + (CTRL_ON_DESELECT - CTRL_ON_CLICK));
     } else {
         CALL(SetButtonU32_t, PushButton_SetPlayerBitfield)(button, 0); // locked: nobody can pick it
     }
@@ -146,7 +151,7 @@ static void setModelPosition(u8 *self) {
 
 void roster_after_hooks(void) {
     // Load: "add r30, r0, r3" (button count) -> "li r30, rosterCount".
-    hook_write32(ADDR_CharacterSelectLoad_ButtonCount, 0x3BC00000 | rosterCount);
+    hook_write32(ADDR_CharacterSelectLoad_ButtonCount, 0x3BC00000 | (rosterCount + (rosterMiis ? 1 : 0)));
 }
 #else
 void roster_after_hooks(void) {}

@@ -15,7 +15,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from ids import FREE_IDS, IDS, MAX_CHARACTERS, VANILLA, WEIGHTS  # noqa: E402
+from ids import FREE_IDS, IDS, MAX_CHARACTERS, MII_IDS, VANILLA, WEIGHTS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CHAR_DIR = ROOT / "characters"
@@ -62,12 +62,19 @@ def load_characters(char_dir=None):
     return chars
 
 
-def resolve(chars, order=None):
-    """Assign IDs and button order. Returns the list of entries in button order."""
+def free_ids(miis=True):
+    """The IDs custom characters can take, per weight (without the Mii IDs if `miis`)."""
+    return {w: [i for i, fw in FREE_IDS if fw == w and not (miis and i in MII_IDS)] for w in WEIGHTS}
+
+
+def resolve(chars, order=None, miis=True):
+    """Assign IDs and button order. Returns the list of entries in button order.
+    With `miis`, the Mii IDs stay free for the Mii button (not part of the list)."""
     errors = []
     vanilla = _vanilla_entries()
     by_id = {e.id: e for e in vanilla.values()}
-    free = {w: [i for i, fw in FREE_IDS if fw == w] for w in WEIGHTS}
+    free = free_ids(miis)
+    slots = ", ".join(f"{len(v)} {w}" for w, v in free.items())
     suffixes = {e.suffix: e.name for e in vanilla.values()}
     customs = []
 
@@ -101,7 +108,8 @@ def resolve(chars, order=None):
             cid = target.id
         else:
             if not free[weight]:
-                errors.append(f"{key}: no free {weight} slots left (the game has 7 small, 9 medium, 8 large extra slots)")
+                errors.append(f"{key}: no free {weight} slots left (there are {slots} extra slots"
+                              + (", with the Mii button on; miis = false in roster.toml frees 6 more)" if miis else ")"))
                 continue
             cid = free[weight].pop(0)
         if suffix in suffixes and not (replaces and suffix == by_id[cid].suffix):
@@ -167,12 +175,16 @@ def load_order():
     return load_settings().get("order")
 
 
+def load_miis():
+    return load_settings().get("miis", True)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
     try:
-        roster = resolve(load_characters(), load_order())
+        roster = resolve(load_characters(), load_order(), load_miis())
     except RosterError as e:
         print("error: " + str(e).replace("\n", "\nerror: "), file=sys.stderr)
         return 1
@@ -183,7 +195,9 @@ def main(argv=None):
         tag = "custom" if e.custom else "vanilla"
         print(f"{pos:2}. {e.name:20} id 0x{e.id:02X}  {e.weight:6}  {e.suffix:6} {tag}")
     used = sum(e.custom for e in roster)
-    print(f"{len(roster)}/{MAX_CHARACTERS} slots used ({used} custom).")
+    miis = load_miis()
+    total = 24 + sum(len(v) for v in free_ids(miis).values())
+    print(f"{len(roster)}/{total} slots used ({used} custom)" + (", plus the Mii button." if miis else "."))
     return 0
 
 

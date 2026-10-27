@@ -63,4 +63,9 @@ IDS = [
 MAX_CHARACTERS = len(IDS)  # 48
 VANILLA = {vanilla: (i, weight, suffix) for i, vanilla, weight, suffix in IDS if suffix}
 FREE_IDS = [(i, weight) for i, _, weight, suffix in IDS if suffix is None]
+# With roster.toml `miis` (the default), Miis keep their outfit-A IDs: the one
+# Mii button turns a Mii into one of these by size and gender
+# (GetMiiCharacterId), so the roster can't hand them out. Must match
+# ROSTER_MII_MASK in payload/include/roster_table.h.
+MII_IDS = (0x18, 0x19, 0x1E, 0x1F, 0x24, 0x25)
 WEIGHTS = ("small", "medium", "large")

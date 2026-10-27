@@ -8,3 +8,8 @@ order = []
 # engine class unlocked. The unlocks are not written into your save file. Set to false to
 # keep the game's normal unlock rules.
 unlock_all = true
+
+# Keep the Mii button (after the last character). Miis keep 6 of the game's
+# spare character IDs, which leaves 18 slots for custom characters (5 small,
+# 7 medium, 6 large). Set to false for all 24 slots and no Mii button.
+miis = true

@@ -7,7 +7,8 @@ bottom and the driver previews across the top.
 For every Scene/UI/*.szs that contains button/ctrl/CharacterSelect4_0.brctr
 (MenuSingle, MenuMulti) this:
   - adds button/ctrl/CharacterSelect48.brctr with records Button0..Button<N-1>
-    placed by layout.grid(N), N = the roster size from tools/roster.py;
+    placed by layout.grid(N), N = the roster size from tools/roster.py, plus
+    one for the Mii button (the last) with roster.toml `miis`;
   - moves the CharacterSelectModel previews (1P, 2P, 4P) to layout.preview_row
     and the CharacterSelectName plates just under each preview;
   - sets the CharacterSelectNULL / ...Center offset to (0, 0) at scale 1, so
@@ -54,10 +55,12 @@ def find_wszst(arg):
 
 
 def roster_size():
+    """Buttons on the select screen: the roster, plus the Mii button with roster.toml `miis`."""
     out = subprocess.run([sys.executable, str(ROOT / "tools" / "roster.py"), "--json"],
                          check=True, capture_output=True, text=True).stdout
     import json
-    return len(json.loads(out))
+    import roster
+    return len(json.loads(out)) + (1 if roster.load_miis() else 0)
 
 
 def place(rec, aspect_attr, p, scale=None):
@@ -126,7 +129,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--game", required=True, help="extracted disc files/ folder (holds Scene/)")
     ap.add_argument("--out", required=True, help="output folder; archives go to <out>/files/Scene/UI/")
-    ap.add_argument("--count", type=int, help="number of buttons (default: roster size)")
+    ap.add_argument("--count", type=int, help="number of buttons (default: roster size, plus the Mii button)")
     ap.add_argument("--wszst", help="path to wszst")
     args = ap.parse_args(argv)
     wszst = find_wszst(args.wszst)

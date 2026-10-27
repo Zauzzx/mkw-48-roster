@@ -32,6 +32,7 @@ SUFFIX_LEN, ICON_LEN = 8, 20
 ENTRY = struct.Struct(f">{SUFFIX_LEN}s{ICON_LEN}sBB2x")
 FILE_SIZE = 8 + MAX_CHARACTERS + MAX_CHARACTERS * ENTRY.size + 8
 FLAG_UNLOCK_ALL = 0x01
+FLAG_MIIS = 0x20
 
 
 class BuildError(Exception):
@@ -42,7 +43,7 @@ def icon_pane(suffix):
     return f"cha_x_{suffix}"
 
 
-def roster_bin(entries, unlock_all=True):
+def roster_bin(entries, unlock_all=True, miis=True):
     """The roster file the payload reads at boot."""
     by_id = {e.id: e for e in entries}
     out = bytearray(struct.pack(">II", ROSTER_MAGIC, len(entries)))
@@ -53,7 +54,7 @@ def roster_bin(entries, unlock_all=True):
             out += ENTRY.pack(e.suffix.encode(), icon_pane(e.suffix).encode(), e.stats_from, 1)
         else:  # vanilla or unused: the hooks fall back to the game's own data
             out += ENTRY.pack(b"", b"", cid if cid < 24 else 0, 0)
-    out.append(FLAG_UNLOCK_ALL if unlock_all else 0)
+    out.append((FLAG_UNLOCK_ALL if unlock_all else 0) | (FLAG_MIIS if miis else 0))
     out += bytes(FILE_SIZE - len(out))
     assert len(out) == FILE_SIZE and FILE_SIZE % 32 == 0
     return bytes(out)
@@ -92,7 +93,9 @@ def main(argv=None):
     ap.add_argument("--out", default=str(ROOT / "out"))
     args = ap.parse_args(argv)
     try:
-        entries = roster_mod.resolve(roster_mod.load_characters(), roster_mod.load_order())
+        settings = roster_mod.load_settings()
+        miis = settings.get("miis", True)
+        entries = roster_mod.resolve(roster_mod.load_characters(), roster_mod.load_order(), miis)
         pre = PREBUILT / args.variant
         if not (pre / "payload.json").exists():
             raise BuildError(f"{pre} has no prebuilt payload; run tools/compile_payload.py first")
@@ -100,7 +103,7 @@ def main(argv=None):
         out = Path(args.out)
         files = out / MOD_ID / "files"
         files.mkdir(parents=True, exist_ok=True)
-        (files / "roster48.bin").write_bytes(roster_bin(entries, roster_mod.load_settings().get("unlock_all", True)))
+        (files / "roster48.bin").write_bytes(roster_bin(entries, settings.get("unlock_all", True), miis))
         code = out / MOD_ID / "code"
         code.mkdir(parents=True, exist_ok=True)
         shutil.copy2(pre / "payload.bin", code / f"payload-{info['region']}.bin")
