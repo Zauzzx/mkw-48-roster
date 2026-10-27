@@ -50,8 +50,9 @@ def grid(count, columns=12, aspect="4:3"):
 def preview_row(players, aspect="4:3"):
     """Driver preview placements across the top half: one per local player."""
     w = SCREEN_W[aspect]
-    top, bottom = SCREEN_H / 2 - 40, ROSTER_TOP
     cell = w / players
-    scale = min(cell / 256, (top - bottom) / 256, 1.0)
-    y = (top + bottom) / 2
+    # The model's origin is at its feet, so stand it just above the roster and
+    # let it grow upward; full size for one player, shrinking to fit a cell.
+    scale = min(cell / 256, 1.0)
+    y = ROSTER_TOP + 20
     return [Placement(round(-w / 2 + cell * (i + 0.5), 2), round(y, 2), round(scale, 3)) for i in range(players)]

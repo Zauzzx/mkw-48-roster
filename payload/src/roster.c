@@ -75,3 +75,13 @@ REPLACE_FUNCTION_ORIG(ADDR_GetDriverParamEntry, driverParamEntry, GetDriverParam
 static void *driverParamEntry(s32 id) {
     return origDriverParamEntry(validId(id) ? rosterById[id].statsFrom : id);
 }
+
+// GetDriverDispEntry(CharacterId): the display table (model setup used by the
+// kart and driver in a race) still holds Mii entries for the repurposed ids,
+// so a custom character borrows the entry of its stats_like character.
+typedef void *(*GetDriverDispEntry_t)(s32 id);
+static void *driverDispEntry(s32 id);
+REPLACE_FUNCTION_ORIG(ADDR_GetDriverDispEntry, driverDispEntry, GetDriverDispEntry_t, origDriverDispEntry);
+static void *driverDispEntry(s32 id) {
+    return origDriverDispEntry(validId(id) && rosterById[id].isCustom ? rosterById[id].statsFrom : id);
+}
