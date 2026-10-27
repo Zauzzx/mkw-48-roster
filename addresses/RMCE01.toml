@@ -45,6 +45,10 @@ CharacterSelect_GetPageById = 0x808229EC
 CharacterSelect_OnButtonDriverSelect = 0x80823B94
 GetCharacterIconPaneName = 0x8083BE80          # table of 48 pane names at 808A8C40
 GetCharacterNameBmg = 0x8081B874               # 9000 + id for non-Mii IDs
+# Preview placement: SetModelPositionOnAnim (PAL 805f3830) moves pane
+# "model_null" along a hard-coded per-variant table, ignoring the BRCTR record.
+DriverModelControl_SetModelPositionOnAnim = 0x8063694C
+Layout_GetPaneByName = 0x805D1C7C
 
 # Used by --debug-boot test builds only.
 BootSectionCall = 0x8060406C                  # PAL 80634f20: call that picks the boot section
