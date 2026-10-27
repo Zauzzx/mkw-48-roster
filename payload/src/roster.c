@@ -67,6 +67,28 @@ PATCH_IMM16(ADDR_AnyPlayerIsMii, 1, 0);
 // as one (CalculatePosition); compare against 0x30 so every id uses its icon.
 PATCH_IMM16(ADDR_Race2DMapCharacter_InitSelf_MiiCheck, 0x18, 0x30);
 PATCH_IMM16(ADDR_Race2DMapCharacter_CalcPos_MiiCheck, 0x18, 0x30);
+// The same `cmpwi id, 0x18` choosing a Mii face or name: the race results
+// (leaderboard), team results, and the cup ceremony.
+PATCH_IMM16(ADDR_RaceResult_Load_MiiCheck, 0x18, 0x30);
+PATCH_IMM16(ADDR_RaceResult_FillName_MiiCheck, 0x18, 0x30);
+PATCH_IMM16(ADDR_RaceResult_Fill_MiiCheck, 0x18, 0x30);
+PATCH_IMM16(ADDR_RaceResultTeam_InitSelf_MiiCheck1, 0x18, 0x30);
+PATCH_IMM16(ADDR_RaceResultTeam_InitSelf_MiiCheck2, 0x18, 0x30);
+PATCH_IMM16(ADDR_AwardDemoResultItem_MiiCheck1, 0x18, 0x30);
+PATCH_IMM16(ADDR_AwardDemoResultItem_MiiCheck2, 0x18, 0x30);
+PATCH_IMM16(ADDR_AwardsMgr_LoadPlayers_MiiCheck1, 0x18, 0x30);
+PATCH_IMM16(ADDR_AwardsMgr_LoadPlayers_MiiCheck2, 0x18, 0x30);
+
+// RKSYS::LicenseCompletion::IsCompleted(bit): the one getter behind every
+// unlock (vehicle classes, cups per engine class and Mirror, characters,
+// vehicles). With unlock_all, everything reads as unlocked; the save is not
+// written.
+typedef bool (*IsCompleted_t)(void *completion, s32 bit);
+static bool isCompleted(void *completion, s32 bit);
+REPLACE_FUNCTION_ORIG(ADDR_LicenseCompletion_IsCompleted, isCompleted, IsCompleted_t, origIsCompleted);
+static bool isCompleted(void *completion, s32 bit) {
+    return rosterUnlockAll || origIsCompleted(completion, bit);
+}
 
 // Pages::IsCharacterUnlocked(CharacterId): custom characters are always
 // available; vanilla ones keep the game's unlock rules unless unlock_all is on.

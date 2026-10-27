@@ -28,6 +28,19 @@ AnyPlayerIsMii = 0x805243E4        # loop over players, id - 0x18 <= 0x14
 # CtrlRace2DMapCharacter: `cmpwi id, 0x18` choosing the Mii face
 Race2DMapCharacter_InitSelf_MiiCheck = 0x807E18B8   # bge -> Mii face
 Race2DMapCharacter_CalcPos_MiiCheck = 0x807E1EC8    # ble -> character icon
+# More `cmpwi id, 0x18` picking a Mii face/name (blt/ble -> character, bge -> Mii)
+RaceResult_Load_MiiCheck = 0x807EAA10               # CtrlRaceResult::Load
+RaceResult_FillName_MiiCheck = 0x807EAD28           # CtrlRaceResult::FillName
+RaceResult_Fill_MiiCheck = 0x807EBA4C               # CtrlRaceResult::Fill
+RaceResultTeam_InitSelf_MiiCheck1 = 0x807EC764      # CtrlRaceResultTeam::InitSelf
+RaceResultTeam_InitSelf_MiiCheck2 = 0x807EC83C
+AwardDemoResultItem_MiiCheck1 = 0x806219EC          # AwardDemoResultItem::SetValues
+AwardDemoResultItem_MiiCheck2 = 0x80621A90
+AwardsMgr_LoadPlayers_MiiCheck1 = 0x807D1A50        # Mii head slot for the ceremony
+AwardsMgr_LoadPlayers_MiiCheck2 = 0x807D1AAC
+# Unlocks: PAL 8054994c, the bit test behind IsCupUnlocked, IsCharacterUnlocked,
+# IsKartUnlocked and IsVehicleTypeUnlocked
+LicenseCompletion_IsCompleted = 0x80544410
 IsCharacterUnlocked = 0x8080A274   # PAL 8081d020
 GetDriverParamEntry = 0x8058B73C   # PAL 80591f60; 27 entries, Miis folded per weight
 GetDriverDispEntry = 0x8058BF9C    # PAL 805927c0; 48 entries
