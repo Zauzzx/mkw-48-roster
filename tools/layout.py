@@ -21,6 +21,7 @@ ROSTER_BOTTOM = -165  # above the bottom bar (back button, help text), which cov
 SIDE_MARGIN = 16
 NAME_PLATE_H = 33  # common_w027_chara_name plate
 PREVIEW_Y = 62  # preview record y: feet just above the name plates (tuned by eye)
+PREVIEW_X_GAIN = 1.93  # a preview lands this many times its record x from the centre (2P, measured)
 
 
 @dataclass
@@ -59,10 +60,19 @@ def preview_row(players, aspect="4:3"):
     # 2.1x as far as its record (measured in Dolphin, 1P: y 30 -> feet at -22,
     # y 86.8 -> feet at 98). y 62 at scale 0.9 stands the feet just above the
     # name plate (see name_plate_y) with the head under the title bar.
-    # Multi-player x positions are not checked yet.
+    # x is perspective-scaled the same way (2P: record x -152 put the model's
+    # centre at -293, half off the screen), so it is divided by PREVIEW_X_GAIN
+    # to stand each model over its name plate at preview_x.
     scale = min(cell / 256, 0.9)
     y = PREVIEW_Y
-    return [Placement(round(-w / 2 + cell * (i + 0.5), 2), round(y, 2), round(scale, 3)) for i in range(players)]
+    return [Placement(round(preview_x(players, i, aspect) / PREVIEW_X_GAIN, 2), round(y, 2), round(scale, 3))
+            for i in range(players)]
+
+
+def preview_x(players, i, aspect="4:3"):
+    """Screen x of player i's preview (and its name plate): centre of its share of the width."""
+    cell = SCREEN_W[aspect] / players
+    return round(-SCREEN_W[aspect] / 2 + cell * (i + 0.5), 2)
 
 
 def name_plate_y(scale):

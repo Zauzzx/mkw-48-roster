@@ -91,7 +91,7 @@ def move_previews(model_path, name_path):
                 rec = names.get(name_vars[i])
                 if rec:
                     plate_scale = min(0.8, p.scale)
-                    under = layout.Placement(p.x, round(layout.name_plate_y(plate_scale), 2), plate_scale)
+                    under = layout.Placement(layout.preview_x(players, i, aspect), round(layout.name_plate_y(plate_scale), 2), plate_scale)
                     place(rec, attr, under)
     return model, names
 
