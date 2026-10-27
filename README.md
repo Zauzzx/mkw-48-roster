@@ -64,12 +64,33 @@ total. Each new character takes a free slot of its weight class: 7 small,
    python3 tools/pack_ui.py --game mkw/DATA/files --out out/mkw-48-roster
    python3 tools/pack_assets.py --game mkw/DATA/files --out out/mkw-48-roster
    ```
-6. **Play:** copy everything inside `out/` into Dolphin's `Load/Riivolution`
-   folder (or the root of your SD card on a Wii). In Dolphin, right-click the
-   game, choose "Start with Riivolution Patches", and turn on "48 Roster".
+6. **Play:** see below.
 
 To remove a character, delete its folder or add `enabled = false` to its
 `character.toml`, then build again.
+
+## Playing it on your own game (Dolphin)
+
+Your game file is never changed: Dolphin applies the mod at boot as a
+Riivolution patch. Tested with Dolphin's built-in Riivolution loader and a
+USA (RMCE01) WBFS.
+
+1. Build (steps 4-5 above). `out/` now holds two folders, `riivolution` and
+   `mkw-48-roster`.
+2. In Dolphin, choose **File > Open User Folder** and open `Load`. Make a
+   folder called `Riivolution` there if it doesn't exist (on Windows it is
+   usually `%AppData%\Dolphin Emulator\Load\Riivolution`).
+3. Copy both folders from `out/` into it, replacing older copies. You should
+   have `Load/Riivolution/riivolution/mkw-48-roster.xml` and
+   `Load/Riivolution/mkw-48-roster/code` and `.../files`.
+4. Right-click Mario Kart Wii in the game list, choose **Start with Riivolution
+   Patches**, set **48 Roster** to Enabled, and press **Start**.
+
+Don't enable another character or menu mod (such as Retro Rewind) at the same
+time. To update after adding a character, build again and repeat step 3.
+
+On a real Wii, copy the same two folders to the root of your SD card and
+launch the game from the Riivolution app (not tested on real hardware yet).
 
 ## Settings in `roster.toml`
 
