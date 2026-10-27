@@ -44,7 +44,6 @@ PREVIEWS = {
     4: (["1P_4Div", "2P_4Div", "3P_4Div", "4P_4Div"],
         ["CharacterSelectName1P4", "CharacterSelectName2P4", "CharacterSelectName3P4", "CharacterSelectName4P4"]),
 }
-NAME_PLATE_H = 33  # height of the common_w027_chara_name plate
 
 
 def find_wszst(arg):
@@ -91,10 +90,8 @@ def move_previews(model_path, name_path):
                     place(rec, attr, p)
                 rec = names.get(name_vars[i])
                 if rec:
-                    # just under the preview: the preview is 256 units tall at scale p.scale
                     plate_scale = min(0.8, p.scale)
-                    under = layout.Placement(p.x, p.y - 128 * p.scale * 0.8 - NAME_PLATE_H * plate_scale / 2,
-                                             plate_scale)
+                    under = layout.Placement(p.x, round(layout.name_plate_y(plate_scale), 2), plate_scale)
                     place(rec, attr, under)
     return model, names
 

@@ -19,6 +19,8 @@ BUTTON_W, BUTTON_H = 92, 45  # vanilla w006_chara button
 ROSTER_TOP = 10
 ROSTER_BOTTOM = -165  # above the bottom bar (back button, help text), which covers ~-170 and below
 SIDE_MARGIN = 16
+NAME_PLATE_H = 33  # common_w027_chara_name plate
+PREVIEW_Y = 62  # preview record y: feet just above the name plates (tuned by eye)
 
 
 @dataclass
@@ -41,8 +43,10 @@ def grid(count, columns=12, aspect="4:3"):
     for i in range(count):
         row, col = divmod(i, columns)
         in_row = min(columns, count - row * columns)
-        # Centre a short last row instead of leaving it left-aligned.
-        x0 = -(in_row - 1) * cell_w / 2
+        # Centre a short last row, but on the grid's columns: the cursor moves
+        # down within a column (wrapping to the top), so a button between two
+        # columns could never be reached from above.
+        x0 = -(columns - 1) * cell_w / 2 + (columns - in_row) // 2 * cell_w
         out.append(Placement(round(x0 + col * cell_w, 2), round(ROSTER_TOP - cell_h * (row + 0.5), 2), round(scale, 3)))
     return out
 
@@ -51,8 +55,16 @@ def preview_row(players, aspect="4:3"):
     """Driver preview placements across the top half: one per local player."""
     w = SCREEN_W[aspect]
     cell = w / players
-    # The model's origin is at its feet, so stand it just above the roster and
-    # let it grow upward; full size for one player, shrinking to fit a cell.
-    scale = min(cell / 256, 1.0)
-    y = ROSTER_TOP + 20
+    # The model is drawn by a perspective camera, so it moves on screen about
+    # 2.1x as far as its record (measured in Dolphin, 1P: y 30 -> feet at -22,
+    # y 86.8 -> feet at 98). y 62 at scale 0.9 stands the feet just above the
+    # name plate (see name_plate_y) with the head under the title bar.
+    # Multi-player x positions are not checked yet.
+    scale = min(cell / 256, 0.9)
+    y = PREVIEW_Y
     return [Placement(round(-w / 2 + cell * (i + 0.5), 2), round(y, 2), round(scale, 3)) for i in range(players)]
+
+
+def name_plate_y(scale):
+    """Centre of a preview's name plate: between the preview and the roster."""
+    return ROSTER_TOP + NAME_PLATE_H * scale / 2 + 2
