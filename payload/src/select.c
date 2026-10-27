@@ -106,6 +106,44 @@ static const char *iconPaneName(s32 id) {
     return origIconPaneName(id);
 }
 
+// The 3D previews: DriverModelControl::SetModelPositionOnAnim places pane
+// "model_null" from a table built into the game, so the placement records in
+// CharacterSelectModel.brctr (written by tools/pack_ui.py) only reach the
+// control itself. For this page's previews, put the pane at the record's
+// position and scale instead.
+#define PAGE_MODELS 0x914      // DriverModelControl array
+#define MODEL_SIZE 0x188
+#define CONTROL_BASE_POS 0x04  // float x, y, z, then scale x, y: from the record
+#define CONTROL_LAYOUT 0xA8
+#define PANE_TRANSLATE 0x2C
+#define PANE_SCALE 0x44
+
+typedef void (*SetModelPosition_t)(u8 *self);
+typedef u8 *(*GetPaneByName_t)(void *layout, const char *name);
+
+static void setModelPosition(u8 *self);
+REPLACE_FUNCTION_ORIG(ADDR_DriverModelControl_SetModelPositionOnAnim, setModelPosition, SetModelPosition_t,
+                      origSetModelPosition);
+static void setModelPosition(u8 *self) {
+    origSetModelPosition(self);
+    u8 *page = CALL(GetPageById_t, CharacterSelect_GetPageById)(PAGE_CHARACTER_SELECT);
+    if (!page)
+        return;
+    u8 *models = *(u8 **)(page + PAGE_MODELS);
+    u8 players = CALL(GetLocalPlayerCount_t, GetLocalPlayerCount)();
+    if (!models || self < models || self >= models + players * MODEL_SIZE)
+        return;
+    u8 *pane = CALL(GetPaneByName_t, Layout_GetPaneByName)(self + CONTROL_LAYOUT, "model_null");
+    if (!pane)
+        return;
+    float *base = (float *)(self + CONTROL_BASE_POS);
+    float *t = (float *)(pane + PANE_TRANSLATE), *s = (float *)(pane + PANE_SCALE);
+    t[0] = base[0];
+    t[1] = base[1];
+    s[0] = base[3];
+    s[1] = base[4];
+}
+
 void roster_after_hooks(void) {
     // Load: "add r30, r0, r3" (button count) -> "li r30, rosterCount".
     hook_write32(ADDR_CharacterSelectLoad_ButtonCount, 0x3BC00000 | rosterCount);
