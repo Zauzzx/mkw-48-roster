@@ -6,8 +6,8 @@ horizontal rows along the bottom, with the driver previews across the top.
 
 **Status:** works in Dolphin. A custom character can be picked from the
 48-button screen, races with its own kart and driver, and shows its icon on the
-minimap. `unlock_all` opens every character, kart, cup, 150cc and Mirror.
-Still being checked: the results screen, and 2-4 player preview positions.
+minimap and results screen. `unlock_all` opens every character, kart, cup,
+150cc and Mirror. 1- and 2-player select screens are checked; 4-player isn't yet.
 
 ## How 48 works
 
