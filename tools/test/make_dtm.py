@@ -45,9 +45,12 @@ def header(inputs, game_id=b"RMCE01"):
     h[10] = 1          # Wii
     h[11] = 0x01       # GameCube pad in port 1, no Wii Remotes
     h[12] = 0          # not from a savestate
-    struct.pack_into("<QQQ", h, 13, 0, inputs, 0)   # frame count unknown, input count, lag
+    struct.pack_into("<QQQ", h, 13, inputs, inputs, 0)   # frame count (upper bound), input count, lag
     h[49:49 + 7] = b"harness"
     h[137] = 0         # don't override the emulator config
+    # Dolphin ends playback once the emulated CPU ticks pass this count, so the
+    # default 0 ends it straight away; let the input data end it instead.
+    struct.pack_into("<Q", h, 237, 1 << 62)  # tickCount
     return bytes(h)
 
 
