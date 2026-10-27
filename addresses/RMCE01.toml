@@ -24,6 +24,9 @@ MenuVoice_IsMii2 = 0x80863F90      # in 80863F58
 MenuVoice_IsMii3 = 0x80864014      # in 80863FB8
 MenuVoice_IsMii4 = 0x80864D30      # 80864D20: bool (id - 0x18 <= 0x11)
 AnyPlayerIsMii = 0x805243E4        # loop over players, id - 0x18 <= 0x14
+# CtrlRace2DMapCharacter: `cmpwi id, 0x18` choosing the Mii face
+Race2DMapCharacter_InitSelf_MiiCheck = 0x807E18B8   # bge -> Mii face
+Race2DMapCharacter_CalcPos_MiiCheck = 0x807E1EC8    # ble -> character icon
 IsCharacterUnlocked = 0x8080A274   # PAL 8081d020
 GetDriverParamEntry = 0x8058B73C   # PAL 80591f60; 27 entries, Miis folded per weight
 GetDriverDispEntry = 0x8058BF9C    # PAL 805927c0; 48 entries

@@ -51,6 +51,10 @@ PATCH_IMM16(ADDR_MenuVoice_IsMii2, 1, 0);
 PATCH_IMM16(ADDR_MenuVoice_IsMii3, 1, 0);
 PATCH_IMM16(ADDR_MenuVoice_IsMii4, 1, 0);
 PATCH_IMM16(ADDR_AnyPlayerIsMii, 1, 0);
+// The race minimap picks a Mii face for ids >= 0x18 (InitSelf) and places it
+// as one (CalculatePosition); compare against 0x30 so every id uses its icon.
+PATCH_IMM16(ADDR_Race2DMapCharacter_InitSelf_MiiCheck, 0x18, 0x30);
+PATCH_IMM16(ADDR_Race2DMapCharacter_CalcPos_MiiCheck, 0x18, 0x30);
 
 // Pages::IsCharacterUnlocked(CharacterId): custom characters are always
 // available; vanilla ones keep the game's unlock rules.
