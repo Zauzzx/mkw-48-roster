@@ -83,6 +83,13 @@ class RosterTest(unittest.TestCase):
         suffix, icon, stats, custom = build.ENTRY.unpack_from(data, 8 + 48 + 0x1E * 32)
         self.assertEqual((suffix.rstrip(b"\0"), icon.rstrip(b"\0"), stats, custom), (b"sh", b"cha_x_sh", 0, 1))
 
+    def test_settings_flags(self):
+        self.assertEqual(build.settings_flags({}), 0x01 | 0x02 | 2 << 2)
+        self.assertEqual(build.settings_flags({"unlock_all": False, "speedometer": False}), 0)
+        self.assertEqual(build.settings_flags({"speedometer": "right", "speedometer_decimals": 0}), 0x01 | 0x02 | 0x10)
+        with self.assertRaises(build.BuildError):
+            build.settings_flags({"speedometer_decimals": 5})
+
 
 if __name__ == "__main__":
     unittest.main()

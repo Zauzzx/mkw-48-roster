@@ -73,6 +73,27 @@ GetCharacterNameBmg = 0x8081B874               # 9000 + id for non-Mii IDs
 DriverModelControl_SetModelPositionOnAnim = 0x8063694C
 Layout_GetPaneByName = 0x805D1C7C
 
+# Speedometer (port of Pulsar's CtrlRaceSpeedo). PAL addresses mapped through
+# Pulsar's versions.txt.
+RaceHUD_InitControlGroupCall = 0x80834840      # PAL 808562d0: bl Page::InitControlGroup in RaceHUD::OnInit
+Page_InitControlGroup = 0x805DDB7C             # PAL 8060245c
+Page_AddControl = 0x805DDB8C                   # PAL 8060246c
+LayoutUIControl_ctor = 0x8060C378              # PAL 8063d798
+LayoutUIControl_Init = 0x8060C6A0              # PAL 8063dac0
+CtrlRaceBase_dtor = 0x807E102C                 # PAL 807ea8d8; its first lis/addi loads the vtable
+CtrlRaceBase_HudSlotColorEnable = 0x807E2674   # PAL 807ebf20
+CtrlRaceBase_UpdatePausePosition = 0x807E2B34  # PAL 807ec3e0
+CtrlRaceBase_GetPlayerId = 0x807E2F4C          # PAL 807ec7f8
+ControlLoader_ctor = 0x805BA284                # PAL 805c2c18
+ControlLoader_dtor = 0x805BA28C                # PAL 805c2c20
+ControlLoader_Load = 0x805BA2CC                # PAL 805c2c60
+UIAnimator_GetAnimationGroupById = 0x8060B400  # PAL 8063c820
+AnimationGroup_PlayAtFrameAndDisable = 0x8060B700  # PAL 8063cb20
+operator_new = 0x80229A48                      # PAL 80229dcc
+PSVECMag = 0x8019ABC8                          # PAL 8019ac68
+Racedata_sInstance = 0x809B8F68                # PAL 809bd728
+KartManager_sInstance = 0x809BD110             # PAL 809c18f8
+
 # Used by --debug-boot test builds only.
 BootSectionCall = 0x8060406C                  # PAL 80634f20: call that picks the boot section
 BootSectionUseNdevCheck = 0x80604078          # bne (40820008) that skips the ndev section if one is already set

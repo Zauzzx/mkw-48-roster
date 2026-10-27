@@ -21,6 +21,10 @@ from its folder characters/<name>/ go where the game looks for them:
   name (character.toml)  BMG message 0x2328+id in every Common.bmg that holds the
                          vanilla driver names (one per language archive).
 
+With the speedometer on in roster.toml, its layout (assets/speedometer/, from
+Pulsar) and digit textures (speedometer/*.tpl, e.g. one colour of the
+Speedometer Recolor Pack) are added to Scene/UI/Race.szs under game_image/.
+
 With clone_from = "<Vanilla Name>" in character.toml, anything missing is copied
 from that vanilla driver (for placeholders and tests; such output must never be
 committed). Output goes to <out>/files/..., laid out like the disc. Archives
@@ -54,6 +58,9 @@ MENU_MODEL = {"pc": "pc_menu", "ds": "ds_menu", "rs": "rs_menu"}
 # pane up by the same name (GetCharacterIconPaneName) in each of them
 ICON_LAYOUTS = {"character_64x64_common.brlyt": "64x64", "character_map_icon_common.brlyt": "32x32"}
 NAME_BMG_BASE = 0x2328
+SPEEDO_LAYOUT = {"PULSpeedo.brctr": "ctrl", "PULSpeedo.brlyt": "blyt", "PULSpeedo.brlan": "anim"}
+SPEEDO_TEXTURES = [f"som_d_number_3d_{i:02d}.tpl" for i in range(10)] + [
+    "som_d_number_3d_coron.tpl", "som_d_none.tpl", "speed.tpl"]
 PIC_MAT_OFF = 0x5C  # pic1 section: 8 header + 0x44 pane + 0x10 vertex colours, then u16 material
 # vanilla icon pane per character ID (from the game's icon pane table)
 VANILLA_ICON = ["cha_01_mario", "cha_19_baby_p", "cha_13_waluiji", "cha_04_koopa", "cha_18_baby_d",
@@ -342,6 +349,29 @@ def pack_names(tools, game, out, chars, work):
     return done
 
 
+def speedometer_on():
+    path = ROOT / "roster.toml"
+    settings = tomllib.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    return settings.get("speedometer", "left") is not False
+
+
+def pack_speedometer(tools, game, out, work):
+    src = ROOT / "speedometer"
+    missing = [n for n in SPEEDO_TEXTURES if not (src / n).exists()]
+    if missing:
+        raise PackError("the speedometer needs these textures in speedometer/ (copy one colour folder of the "
+                        "Speedometer Recolor Pack there, or set speedometer = false in roster.toml):\n  "
+                        + "\n  ".join(missing))
+    rel = "Scene/UI/Race.szs"
+    d = start_archive(tools, game, out, rel, work)
+    for name, sub in SPEEDO_LAYOUT.items():
+        (d / "game_image" / sub).mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / "assets" / "speedometer" / name, d / "game_image" / sub / name)
+    for name in SPEEDO_TEXTURES:
+        shutil.copy2(src / name, d / "game_image" / "timg" / name)
+    tools.create(d, out / "files" / rel)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--game", required=True, help="extracted disc files/ folder (holds Race/, Scene/)")
@@ -352,21 +382,27 @@ def main(argv=None):
     try:
         tools = Tools(args.szs_bin)
         chars = custom_characters()
-        if not chars:
-            print("no custom characters; nothing to pack")
-            return
-        missing = []
+        speedo = speedometer_on()
+        missing, langs = [], []
         with tempfile.TemporaryDirectory() as work:
-            for ch in chars:
-                pack_karts(game, out, ch, missing)
-            pack_menu_models(tools, game, out, chars, missing, work)
-            pack_icons(tools, game, out, chars, missing, work)
-            langs = pack_names(tools, game, out, chars, work)
+            if chars:
+                for ch in chars:
+                    pack_karts(game, out, ch, missing)
+                pack_menu_models(tools, game, out, chars, missing, work)
+                pack_icons(tools, game, out, chars, missing, work)
+                langs = pack_names(tools, game, out, chars, work)
+            if speedo:
+                pack_speedometer(tools, game, out, work)
         if missing:
             raise PackError("missing files (add them, or set clone_from):\n  " + "\n  ".join(missing))
     except PackError as e:
         sys.exit(str(e))
-    print(f"packed {', '.join(c['name'] for c in chars)}; names in {', '.join(langs)}")
+    if chars:
+        print(f"packed {', '.join(c['name'] for c in chars)}; names in {', '.join(langs)}")
+    else:
+        print("no custom characters")
+    if speedo:
+        print("added the speedometer to Scene/UI/Race.szs")
 
 
 if __name__ == "__main__":

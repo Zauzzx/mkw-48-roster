@@ -8,3 +8,10 @@ order = []
 # engine class unlocked. The unlocks are not written into your save file. Set to false to
 # keep the game's normal unlock rules.
 unlock_all = true
+
+# Speedometer in races: "left", "right" (where it sits in 1-player races) or
+# false. Its digits come from speedometer/ (see the README), packed into
+# Race.szs by tools/pack_assets.py.
+speedometer = "left"
+# Decimal places shown: 0 to 3.
+speedometer_decimals = 2

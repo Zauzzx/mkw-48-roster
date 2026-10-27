@@ -28,12 +28,20 @@ struct RosterFile {
 
 // roster.toml `unlock_all`: play as if the save were 100% complete.
 #define ROSTER_FLAG_UNLOCK_ALL 0x01
+// roster.toml `speedometer`: show it, on the right in 1-player races, and the
+// number of decimals (0-3) in bits 2-3.
+#define ROSTER_FLAG_SPEEDO 0x02
+#define ROSTER_FLAG_SPEEDO_RIGHT 0x10
+#define ROSTER_SPEEDO_DECIMALS_SHIFT 2
 
 extern struct RosterFile roster;
 #define rosterCount (roster.count)
 #define rosterButtonToId (roster.order)
 #define rosterById (roster.byId)
 #define rosterUnlockAll (roster.flags & ROSTER_FLAG_UNLOCK_ALL)
+#define rosterSpeedo (roster.flags & ROSTER_FLAG_SPEEDO)
+#define rosterSpeedoRight (roster.flags & ROSTER_FLAG_SPEEDO_RIGHT)
+#define rosterSpeedoDecimals (roster.flags >> ROSTER_SPEEDO_DECIMALS_SHIFT & 3)
 
 // Load /roster48.bin; falls back to the vanilla 24 if it's missing or invalid.
 void roster_load(void);

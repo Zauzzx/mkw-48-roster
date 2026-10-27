@@ -79,6 +79,14 @@ To remove a character, delete its folder or add `enabled = false` to its
 - `unlock_all` (default `true`): play as if your save were 100% complete. The
   unlocks are not written into your save file; set it to `false` to keep the
   normal unlock rules.
+- `speedometer` (default `"left"`): shows your speed in races, one per player.
+  `"right"` moves it to the right side in 1-player races; `false` turns it off.
+  `speedometer_decimals` (default `2`) sets the decimal places, 0 to 3.
+  Its digit textures aren't included: copy one colour folder of the
+  [Speedometer Recolor Pack](https://mkwiiki.org/wiki/Speedometer_Recolor_Pack)
+  into `speedometer/` before running `tools/pack_assets.py`. The speedometer
+  code and layout are ported from [Pulsar](https://github.com/MelgMKW/Pulsar)
+  (MIT, see `assets/speedometer/LICENSE-Pulsar`).
 
 ## For developers
 
@@ -97,5 +105,7 @@ The game code patch is prebuilt in `prebuilt/` and reads the roster from
 - `payload/`: the C code patch, built with clang for PowerPC (no CodeWarrior);
   `prebuilt/` holds the compiled result.
 - `addresses/`: per-region game addresses found by reverse engineering.
+- `assets/speedometer/`: the speedometer layout, from Pulsar.
+- `speedometer/`: where the speedometer's digit textures go.
 
 No Nintendo files are in this repository. You need your own disc.
