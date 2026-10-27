@@ -7,10 +7,7 @@ bottom and the driver previews across the top.
 For every Scene/UI/*.szs that contains button/ctrl/CharacterSelect4_0.brctr
 (MenuSingle, MenuMulti) this:
   - adds button/ctrl/CharacterSelect48.brctr with records Button0..Button<N-1>
-    placed by layout.grid(N), N = the roster size from tools/roster.py. The
-    buttons are shrunk by scaling the root pane of their layout
-    (button/blyt/common_w006_chara.brlyt, used only by this screen), because
-    the game ignores the scale in a button's placement record;
+    placed by layout.grid(N), N = the roster size from tools/roster.py;
   - moves the CharacterSelectModel previews (1P, 2P, 4P) to layout.preview_row
     and the CharacterSelectName plates just under each preview;
   - sets the CharacterSelectNULL / ...Center offset to (0, 0) at scale 1, so
@@ -24,7 +21,6 @@ Needs Wiimm's SZS Tools (wszst): on PATH, in $WSZST, or passed with --wszst.
 import argparse
 import os
 import shutil
-import struct
 import subprocess
 import sys
 import tempfile
@@ -73,39 +69,15 @@ def place(rec, aspect_attr, p, scale=None):
 
 
 def build_grid(template_path, count):
-    """The CharacterSelect48 control, and the button scale its layout needs."""
     ctr = brctr.load(template_path)
     ctr.records = []
     grids = {aspect: layout.grid(count, aspect=aspect) for aspect, _ in ASPECTS}
-    # One layout serves both aspect ratios, so use the smaller (4:3) scale;
-    # on 16:9 the buttons just get a little more space between them.
-    scale = min(g[0].scale for g in grids.values())
     for i in range(count):
         rec = brctr.Record(f"Button{i}")
         for aspect, attr in ASPECTS:
-            place(rec, attr, grids[aspect][i], scale=1.0)
+            place(rec, attr, grids[aspect][i])
         ctr.set(rec)
-    return ctr, scale
-
-
-def layout_name(ctr):
-    return ctr._string(struct.unpack_from(">H", ctr.head, 0x0A)[0])
-
-
-def scale_root_pane(brlyt, scale):
-    """Set the scale of the first pane (the root) of a BRLYT file."""
-    data = bytearray(brlyt)
-    if data[:4] != b"RLYT":
-        raise ValueError("not a BRLYT file")
-    off = struct.unpack_from(">H", data, 0x0C)[0]
-    for _ in range(struct.unpack_from(">H", data, 0x0E)[0]):
-        magic, size = data[off:off + 4], struct.unpack_from(">I", data, off + 4)[0]
-        if magic == b"pan1":
-            # pan1: header 8, flags 4, name 0x10, user data 8, translate 3f, rotate 3f, scale 2f
-            struct.pack_into(">ff", data, off + 0x3C, scale, scale)
-            return bytes(data)
-        off += size
-    raise ValueError("BRLYT has no pane")
+    return ctr
 
 
 def move_previews(model_path, name_path):
@@ -141,14 +113,7 @@ def pack_archive(wszst, src, dest, count, work):
     subprocess.run([wszst, "extract", "-q", "-o", str(src), "-d", str(d)], check=True)
     if not (d / TEMPLATE).exists():
         return False
-    grid, scale = build_grid(d / TEMPLATE, count)
-    base = layout_name(grid)
-    src_lyt = d / "button" / "blyt" / f"{base}.brlyt"
-    if not src_lyt.exists():
-        sys.exit(f"{src.name}: button layout {src_lyt.name} not found")
-    # Scaled in place rather than copied: the animations are found by layout name.
-    src_lyt.write_bytes(scale_root_pane(src_lyt.read_bytes(), scale))
-    brctr.save(grid, d / GRID_CTR)
+    brctr.save(build_grid(d / TEMPLATE, count), d / GRID_CTR)
     if (d / MODEL_CTR).exists() and (d / NAME_CTR).exists():
         model, names = move_previews(d / MODEL_CTR, d / NAME_CTR)
         brctr.save(model, d / MODEL_CTR)

@@ -2,13 +2,16 @@
 screen, and the driver preview models in a row across the top.
 
 Coordinates are the game's layout units: the origin is the screen centre and
-the 4:3 screen is 608 x 456 (the 16:9 one is 832 x 456).
+the screen is 608 x 456. That holds on 16:9 too: the game reads the 16:9 values
+of a placement record but still lays out 608 units across, stretched to the
+wider screen (seen in Dolphin: a 92x45 button drew 111x38 px and 16:9 x values
+1.37x too far apart).
 """
 
 from dataclasses import dataclass
 
 SCREEN_H = 456
-SCREEN_W = {"4:3": 608, "16:9": 832}
+SCREEN_W = {"4:3": 608, "16:9": 608}
 BUTTON_W, BUTTON_H = 92, 45  # vanilla w006_chara button
 
 # The roster area: the bottom part of the screen, leaving a margin for the
