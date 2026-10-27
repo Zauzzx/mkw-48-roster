@@ -62,4 +62,5 @@ void roster_apply_hooks(void) {
     }
     OSReport("[mkw-48-roster] applied %d hooks\n", (int)(__hooks_end - __hooks_start));
     roster_after_hooks();
+    roster_patch_tables();
 }

@@ -25,15 +25,27 @@ PATCH_IMM16(ADDR_BindDriverBRRES_RosalinaSwap, 0x2F, MENU_ROSALINA);
 typedef const char *(*GetKartArchivePostfix_t)(s32 id);
 static const char *kartArchivePostfix(s32 id);
 REPLACE_FUNCTION_ORIG(ADDR_GetKartArchivePostfix, kartArchivePostfix, GetKartArchivePostfix_t, origKartArchivePostfix);
+static const char *menuPostfix[3]; // vanilla "pc_menu", "ds_menu", "rs_menu"
 static const char *kartArchivePostfix(s32 id) {
-    switch (id) {
-    case MENU_PEACH: return origKartArchivePostfix(0x2D);
-    case MENU_DAISY: return origKartArchivePostfix(0x2E);
-    case MENU_ROSALINA: return origKartArchivePostfix(0x2F);
-    }
+    if (id >= MENU_PEACH && id <= MENU_ROSALINA)
+        return menuPostfix[id - MENU_PEACH];
     if (validId(id) && rosterById[id].isCustom)
         return rosterById[id].suffix;
     return origKartArchivePostfix(id);
+}
+
+// The race and kart-select archive loaders (ArchiveMgr::LoadKartArchive,
+// LoadKartArchiveHolder2, LoadKartArchiveAsync, GetMenuKartBRRES) read the
+// postfix table directly instead of calling GetKartArchivePostfix, so a custom
+// character loaded the Mii files (ma_kart-ma_mii_m.szs: white kart, Mii body).
+// Point the custom IDs' entries at their suffixes.
+void roster_patch_tables(void) {
+    const char **table = (const char **)ADDR_KartArchivePostfixTable;
+    for (u32 i = 0; i < 3; i++)
+        menuPostfix[i] = table[0x2D + i];
+    for (s32 id = 0; id < ROSTER_MAX; id++)
+        if (rosterById[id].isCustom)
+            table[id] = rosterById[id].suffix;
 }
 
 // Mii::IsMiiId(CharacterId): no ID is a Mii any more.

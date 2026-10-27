@@ -50,3 +50,6 @@ void hook_write32(u32 addr, u32 value);
 
 // Runs once all hooks are in place; for patches computed from the roster.
 void roster_after_hooks(void);
+
+// Point game tables at the custom characters' data (runs after the hooks).
+void roster_patch_tables(void);
