@@ -64,12 +64,41 @@ total. Each new character takes a free slot of its weight class: 7 small,
    python3 tools/pack_ui.py --game mkw/DATA/files --out out/mkw-48-roster
    python3 tools/pack_assets.py --game mkw/DATA/files --out out/mkw-48-roster
    ```
-6. **Play:** copy everything inside `out/` into Dolphin's `Load/Riivolution`
-   folder (or the root of your SD card on a Wii). In Dolphin, right-click the
-   game, choose "Start with Riivolution Patches", and turn on "48 Roster".
+6. **Play:** put `out/` on your game, see [Playing it](#playing-it).
 
 To remove a character, delete its folder or add `enabled = false` to its
 `character.toml`, then build again.
+
+## Playing it
+
+The mod is a Riivolution patch: your disc image (ISO or WBFS) is never
+changed. After a build, `out/` holds two folders:
+
+```
+out/
+  riivolution/mkw-48-roster.xml     the patch Riivolution lists as "48 Roster"
+  mkw-48-roster/code/               the game code patch
+  mkw-48-roster/files/              roster48.bin plus the replaced menu and kart files
+```
+
+**Dolphin**
+
+1. Open Dolphin's user folder (File > Open User Folder; on Windows usually
+   `%APPDATA%\Dolphin Emulator`) and go into `Load/Riivolution`.
+2. Copy both folders from `out/` into it, replacing any older copy, so you have
+   `Load/Riivolution/riivolution/mkw-48-roster.xml` and
+   `Load/Riivolution/mkw-48-roster/`. Other Riivolution mods in that folder
+   are not affected.
+3. Right-click Mario Kart Wii (USA, RMCE01) in the game list, choose
+   "Start with Riivolution Patches", set "48 Roster" to Enabled and press Start.
+   Don't enable another mod that changes the game code at the same time.
+
+**Wii**: copy both folders to the root of your SD card (`/riivolution/` and
+`/mkw-48-roster/`), start Riivolution from the Homebrew Channel, enable
+"48 Roster" and launch the disc.
+
+After every rebuild, copy `out/` again: the old copy stays in use until you
+replace it.
 
 ## Settings in `roster.toml`
 
