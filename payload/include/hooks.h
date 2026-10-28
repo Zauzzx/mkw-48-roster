@@ -53,3 +53,6 @@ void roster_after_hooks(void);
 
 // Point game tables at the custom characters' data (runs after the hooks).
 void roster_patch_tables(void);
+
+// Add the race HUD speedometer if roster.toml turns it on (speedo.c).
+void speedo_setup(void);
