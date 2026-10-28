@@ -103,10 +103,9 @@ launch the game from the Riivolution app (not tested on real hardware yet).
 - `speedometer` (default `"left"`): shows your speed in races, one per player.
   `"right"` moves it to the right side in 1-player races; `false` turns it off.
   `speedometer_decimals` (default `2`) sets the decimal places, 0 to 3.
-  Its digit textures aren't included: copy one colour folder of the
-  [Speedometer Recolor Pack](https://mkwiiki.org/wiki/Speedometer_Recolor_Pack)
-  into `speedometer/` before running `tools/pack_assets.py`. The speedometer
-  code and layout are ported from [Pulsar](https://github.com/MelgMKW/Pulsar)
+  It uses the game's own 3D digits; see `speedometer/README.md` to swap in
+  other textures. The speedometer code and layout are ported from
+  [Pulsar](https://github.com/MelgMKW/Pulsar)
   (MIT, see `assets/speedometer/LICENSE-Pulsar`).
 
 ## For developers

@@ -21,9 +21,10 @@ from its folder characters/<name>/ go where the game looks for them:
   name (character.toml)  BMG message 0x2328+id in every Common.bmg that holds the
                          vanilla driver names (one per language archive).
 
-With the speedometer on in roster.toml, its layout (assets/speedometer/, from
-Pulsar) and digit textures (speedometer/*.tpl, e.g. one colour of the
-Speedometer Recolor Pack) are added to Scene/UI/Race.szs under game_image/.
+With the speedometer on in roster.toml, its layout and KM/H label
+(assets/speedometer/, from Pulsar) are added to Scene/UI/Race.szs under
+game_image/, with the game's own 3D digits; any of the 13 textures put in
+speedometer/ is used instead (for other colours).
 
 With clone_from = "<Vanilla Name>" in character.toml, anything missing is copied
 from that vanilla driver (for placeholders and tests; such output must never be
@@ -355,20 +356,42 @@ def speedometer_on():
     return settings.get("speedometer", "left") is not False
 
 
+def blank_tpl(template):
+    """A copy of a TPL with every pixel cleared (transparent in RGB5A3/IA8)."""
+    data = bytearray(template)
+    table = struct.unpack_from(">I", data, 8)[0]
+    image = struct.unpack_from(">I", data, table)[0]
+    start = struct.unpack_from(">I", data, image + 8)[0]
+    data[start:] = bytes(len(data) - start)
+    return bytes(data)
+
+
 def pack_speedometer(tools, game, out, work):
-    src = ROOT / "speedometer"
-    missing = [n for n in SPEEDO_TEXTURES if not (src / n).exists()]
-    if missing:
-        raise PackError("the speedometer needs these textures in speedometer/ (copy one colour folder of the "
-                        "Speedometer Recolor Pack there, or set speedometer = false in roster.toml):\n  "
-                        + "\n  ".join(missing))
+    """Layout from assets/speedometer/; digits from speedometer/ if present,
+    else the game's own 3D digits (tt_d_number_3d_*) already in Race.szs."""
     rel = "Scene/UI/Race.szs"
     d = start_archive(tools, game, out, rel, work)
+    timg = d / "game_image" / "timg"
     for name, sub in SPEEDO_LAYOUT.items():
         (d / "game_image" / sub).mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / "assets" / "speedometer" / name, d / "game_image" / sub / name)
+    user = ROOT / "speedometer"
+    missing = []
     for name in SPEEDO_TEXTURES:
-        shutil.copy2(src / name, d / "game_image" / "timg" / name)
+        game_tex = timg / name.replace("som_d_", "tt_d_")
+        if (user / name).exists():
+            shutil.copy2(user / name, timg / name)
+        elif name == "speed.tpl":
+            shutil.copy2(ROOT / "assets" / "speedometer" / name, timg / name)
+        elif name == "som_d_none.tpl" and (timg / "tt_d_number_3d_00.tpl").exists():
+            (timg / name).write_bytes(blank_tpl((timg / "tt_d_number_3d_00.tpl").read_bytes()))
+        elif game_tex.exists():
+            shutil.copy2(game_tex, timg / name)
+        else:
+            missing.append(name)
+    if missing:
+        raise PackError("speedometer: Race.szs has no game_image/timg/tt_d_number_3d_* digits; put these in "
+                        "speedometer/ or set speedometer = false in roster.toml:\n  " + "\n  ".join(missing))
     tools.create(d, out / "files" / rel)
 
 

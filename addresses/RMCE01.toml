@@ -3,15 +3,19 @@
 # Each value is a runtime address, with StaticR.rel already linked.
 
 [payload]
-# The boot code area: 0x2460 bytes, unused once the game has started.
+# The boot code area, unused once the game has started; but memcpy (80005F34)
+# and memset (80006038) sit at its end and stay in use, so only 0x1F34 bytes
+# of its 0x2460 are free.
 load_address = 0x80004000
-max_size = 0x2460
+max_size = 0x1F34
 # Final blr of ModuleLinker::Link: runs once, right after StaticR.rel is linked.
 loader_hook = 0x8000A3B4
 loader_hook_original = 0x4E800020
 
 [functions]
 OSReport = 0x801A2530              # printf to the Dolphin log (OSREPORT)
+RKSystem_GetStaticInstance = 0x80008E44  # PAL 80008e84
+EGG_Heap_alloc = 0x80229490        # PAL 80229814: alloc(size, align, heap)
 DVDConvertPathToEntrynum = 0x8015DEAC
 DVDFastOpen = 0x8015E1B4
 DVDReadPrio = 0x8015E794

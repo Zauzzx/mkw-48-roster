@@ -34,7 +34,10 @@ struct RosterFile {
 #define ROSTER_FLAG_SPEEDO_RIGHT 0x10
 #define ROSTER_SPEEDO_DECIMALS_SHIFT 2
 
-extern struct RosterFile roster;
+// Allocated from the system heap at boot: the boot code area the payload
+// lives in is too small to hold it as well.
+extern struct RosterFile *rosterFile;
+#define roster (*rosterFile)
 #define rosterCount (roster.count)
 #define rosterButtonToId (roster.order)
 #define rosterById (roster.byId)
